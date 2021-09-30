@@ -9,7 +9,88 @@
       rel="stylesheet"
       href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
     />
-    <script></script>
+    <script type="module">
+      import { createApp } from "https://unpkg.com/petite-vue?module";
+
+      createApp({
+        // exposed to all expressions
+        timers: [
+          {
+            name: "Shoulder Rotation",
+            break: false,
+            time: 45,
+          },
+          {
+            name: "Jumping Jacks",
+            break: false,
+            time: 45,
+          },
+          {
+            name: "Butt Kicks",
+            break: false,
+            time: 45,
+          },
+          {
+            name: "Leg Raise",
+            break: false,
+            time: 30,
+          },
+          {
+            name: "Break",
+            break: false,
+            time: 15,
+          },
+          {
+            name: "Leg Scissors",
+            break: false,
+            time: 30,
+          },
+          {
+            name: "Break",
+            break: false,
+            time: 15,
+          },
+          {
+            name: "Knee High Crunches",
+            break: false,
+            time: 30,
+          },
+          {
+            name: "Break",
+            break: false,
+            time: 15,
+          },
+          {
+            name: "Wall Pushup Bicep",
+            break: false,
+            time: 30,
+          },
+          {
+            name: "Break",
+            break: false,
+            time: 15,
+          },
+          {
+            name: "Wall Pushup Tricep",
+            break: false,
+            time: 30,
+          },
+          {
+            name: "Break",
+            break: false,
+            time: 15,
+          },
+        ],
+        // getters
+        get plusOne() {
+          return this.count + 1;
+        },
+        // methods
+        increment() {
+          this.count++;
+        },
+      }).mount();
+    </script>
   </head>
   <body>
     <main class="container">
@@ -24,21 +105,15 @@
             <h2 id="safeTimerDisplay">00:00</h2>
             <h3 id="timerName">Choose an Exercise</h3>
           </hgroup>
-        </article>
-        <!-- Markup example 1: input is inside label -->
-
-        <article>
           <button class="contrast">Start</button>
-          <button onClick="startTimer(3, 'Crunches')" class="primary">
-            Crunches: 00:45
+          <button
+            v-for="(timer, index) in timers"
+            :key="timer"
+            @click="startTimer(timer.time, timer.name)"
+          >
+            {{timer.name}} {{index}}
           </button>
-          <button class="secondary">Break: 00:15</button>
-          <button class="primary">Wall PushUp: 00:45</button>
-          <button class="secondary">Break: 00:15</button>
         </article>
-      </div>
-      <details>
-        <summary>Add Exercise or Break</summary>
         <article>
           <label for="firstname">
             Name
@@ -49,7 +124,6 @@
               name="name"
               placeholder="Name"
               required
-              autofocus
             />
           </label>
           <label for="firstname">
@@ -70,54 +144,12 @@
           <div>OR</div>
           <button type="button">+ Break</button>
         </article>
-      </details>
+      </div>
     </main>
 
     <script>
       var interval;
       var msg = new SpeechSynthesisUtterance();
-
-      var timers = [
-        {
-          "Shoulder Rotation": 45,
-        },
-        {
-          "Jumping Jacks": 45,
-        },
-        {
-          "Butt Kicks": 45,
-        },
-        {
-          "Leg Raise": 30,
-        },
-        {
-          Break: 15,
-        },
-        {
-          "Leg Scissors": 30,
-        },
-        {
-          Break: 15,
-        },
-        {
-          "Knee High Crunches": 30,
-        },
-        {
-          Break: 15,
-        },
-        {
-          "Wall Pushup Bicep": 30,
-        },
-        {
-          Break: 15,
-        },
-        {
-          "Wall Pushup Tricep": 30,
-        },
-        {
-          Break: 15,
-        },
-      ];
       var context = new AudioContext();
 
       const loud = (freq = 520, duration = 250, vol = 50) => {
@@ -152,6 +184,8 @@
         var display = document.querySelector("#safeTimerDisplay");
         document.getElementById("timerName").innerText = timerName;
         msg.lang = "en-IN";
+        msg.rate = 1;
+        msg.volume = 10;
         msg.text = timerName;
         window.speechSynthesis.speak(msg);
         interval = setInterval(function () {
@@ -162,11 +196,17 @@
           seconds = seconds < 10 ? "0" + seconds : seconds;
           display.innerHTML = minutes + ":" + seconds;
 
-          if (timer > 0 && timer < 5) {
-            loud();
+          if (timer > 0 && timer < 6) {
+            // loud();
+            msg.rate = 2;
+            msg.text = timer;
+            window.speechSynthesis.speak(msg);
           }
           if (--timer < 0) {
-            flat();
+            // flat();
+            msg.rate = 2;
+            msg.text = "And Done";
+            window.speechSynthesis.speak(msg);
             clearInterval(interval);
             // timer = duration; // uncomment this line to reset timer automatically after reaching 0
           }

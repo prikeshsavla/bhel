@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bhel - your exercise timer</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
+    />
+    <script></script>
+  </head>
+  <body>
+    <main class="container">
+      <hgroup style="text-align: center">
+        <h1>Bhel</h1>
+        <h4>Your Exercise Timer ⏲</h4>
+      </hgroup>
+      <!-- Grid -->
+      <div class="grid">
+        <article>
+          <hgroup style="text-align: center">
+            <h2 id="safeTimerDisplay">00:00</h2>
+            <h3 id="timerName">Choose an Exercise</h3>
+          </hgroup>
+        </article>
+        <!-- Markup example 1: input is inside label -->
+
+        <article>
+          <button class="contrast">Start</button>
+          <button onClick="startTimer(3, 'Crunches')" class="primary">
+            Crunches: 00:45
+          </button>
+          <button class="secondary">Break: 00:15</button>
+          <button class="primary">Wall PushUp: 00:45</button>
+          <button class="secondary">Break: 00:15</button>
+        </article>
+      </div>
+      <details>
+        <summary>Add Exercise or Break</summary>
+        <article>
+          <label for="firstname">
+            Name
+            <input
+              type="text"
+              value=""
+              id="name"
+              name="name"
+              placeholder="Name"
+              required
+              autofocus
+            />
+          </label>
+          <label for="firstname">
+            Seconds
+            <input
+              type="number"
+              min="15"
+              step="5"
+              value="15"
+              id="time"
+              name="time"
+              placeholder="time"
+              required
+            />
+          </label>
+
+          <button type="button">+ Exercise</button>
+          <div>OR</div>
+          <button type="button">+ Break</button>
+        </article>
+      </details>
+    </main>
+
+    <script>
+      var interval;
+      var msg = new SpeechSynthesisUtterance();
+
+      var timers = [
+        {
+          "Shoulder Rotation": 45,
+        },
+        {
+          "Jumping Jacks": 45,
+        },
+        {
+          "Butt Kicks": 45,
+        },
+        {
+          "Leg Raise": 30,
+        },
+        {
+          Break: 15,
+        },
+        {
+          "Leg Scissors": 30,
+        },
+        {
+          Break: 15,
+        },
+        {
+          "Knee High Crunches": 30,
+        },
+        {
+          Break: 15,
+        },
+        {
+          "Wall Pushup Bicep": 30,
+        },
+        {
+          Break: 15,
+        },
+        {
+          "Wall Pushup Tricep": 30,
+        },
+        {
+          Break: 15,
+        },
+      ];
+      var context = new AudioContext();
+
+      const loud = (freq = 520, duration = 250, vol = 50) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.connect(gain);
+        oscillator.frequency.value = freq;
+        oscillator.type = "square";
+        gain.connect(context.destination);
+        gain.gain.value = vol * 0.01;
+        oscillator.start(context.currentTime);
+        oscillator.stop(context.currentTime + duration * 0.001);
+      };
+
+      const flat = (freq = 2500, duration = 450, vol = 50) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.connect(gain);
+        oscillator.frequency.value = freq;
+        oscillator.type = "sine";
+        gain.connect(context.destination);
+        gain.gain.value = vol * 0.01;
+        oscillator.start(context.currentTime);
+        oscillator.stop(context.currentTime + duration * 0.001);
+      };
+
+      function startTimer(duration, timerName) {
+        clearInterval(interval);
+        var timer = duration,
+          minutes,
+          seconds;
+        var display = document.querySelector("#safeTimerDisplay");
+        document.getElementById("timerName").innerText = timerName;
+        msg.lang = "en-IN";
+        msg.text = timerName;
+        window.speechSynthesis.speak(msg);
+        interval = setInterval(function () {
+          minutes = parseInt(timer / 60, 10);
+          seconds = parseInt(timer % 60, 10);
+
+          minutes = minutes < 10 ? "0" + minutes : minutes;
+          seconds = seconds < 10 ? "0" + seconds : seconds;
+          display.innerHTML = minutes + ":" + seconds;
+
+          if (timer > 0 && timer < 5) {
+            loud();
+          }
+          if (--timer < 0) {
+            flat();
+            clearInterval(interval);
+            // timer = duration; // uncomment this line to reset timer automatically after reaching 0
+          }
+        }, 1000);
+      }
+
+      function addExercise() {}
+      function addBreak() {}
+    </script>
+  </body>
+</html>

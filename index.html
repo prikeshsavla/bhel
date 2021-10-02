@@ -83,7 +83,7 @@
           },
           {
             name: "Break",
-            break: false,
+            break: true,
             time: 15,
           },
           {
@@ -93,7 +93,7 @@
           },
           {
             name: "Break",
-            break: false,
+            break: true,
             time: 15,
           },
           {
@@ -103,7 +103,7 @@
           },
           {
             name: "Break",
-            break: false,
+            break: true,
             time: 10,
           },
           {
@@ -113,7 +113,7 @@
           },
           {
             name: "Break",
-            break: false,
+            break: true,
             time: 10,
           },
           {
@@ -123,7 +123,7 @@
           },
           {
             name: "Break",
-            break: false,
+            break: true,
             time: 10,
           },
           {
@@ -133,11 +133,11 @@
           },
           {
             name: "Break",
-            break: false,
+            break: true,
             time: 10,
           },
         ],
-        routineTimeouts: [],
+        timeouts: [],
         // getters
         get totalExerciseTime() {
           return durationString(
@@ -183,26 +183,27 @@
         startSingleTimerWithMusic(timer) {
           audioPlayer.load();
           audioPlayer.play();
-          this.routineTimeouts.forEach((timeout) => clearTimeout(timeout));
           this.startTimer(timer.time, timer.name);
-          this.routineTimeouts.push(setTimeout(
-            () => (audioPlayer.volume = audioPlayer.volume / 2),
-            timer.time * 1000
-          ))
-          ;
-          this.routineTimeouts.push(setTimeout(
-            () => (audioPlayer.volume = audioPlayer.volume / 2),
-            (timer.time + (this.gap / 2)) * 1000
-          ))
-          ;
-          this.routineTimeouts.push(
-          setTimeout(() => audioPlayer.pause(), (timer.time + this.gap) * 1000));
+          this.timeouts.push(
+            setTimeout(
+              () => (audioPlayer.volume = audioPlayer.volume / 2),
+              timer.time * 1000
+            )
+          );
+          this.timeouts.push(
+            setTimeout(
+              () => (audioPlayer.volume = audioPlayer.volume / 2),
+              (timer.time + this.gap / 2) * 1000
+            )
+          );
+          this.timeouts.push(
+            setTimeout(() => audioPlayer.pause(), (timer.time + this.gap) * 1000)
+          );
         },
         startRoutine() {
-          
           var lastTimeout = 0;
           this.timers.forEach((timer) => {
-            this.routineTimeouts.push(
+            this.timeouts.push(
               setTimeout(
                 () => this.startTimer(timer.time, timer.name),
                 lastTimeout * 1000
@@ -211,6 +212,20 @@
             lastTimeout += timer.time + this.gap;
           });
           audioPlayer.play();
+        },
+        clearTimeouts() {
+          this.timeouts.forEach((timeout) => clearTimeout(timeout));
+          this.timeouts = [];
+        },
+        stop() {
+          clearInterval(interval);
+          document.getElementById("safeTimerDisplay").innerText =
+            durationString(0);
+          document.getElementById("timerName").innerText =
+            "Tap Start to Exercise";
+          audioPlayer.pause();
+          window.speechSynthesis.cancel()
+          this.clearTimeouts();
         },
       }).mount("#app");
     </script>
@@ -228,29 +243,29 @@
             <h1 id="safeTimerDisplay">00:00</h1>
             <h4 id="timerName">Tap Start to Exercise</h4>
           </hgroup>
-          <button class="contrast" @click="startRoutine">
-            Start Routine (⏲ {{totalExerciseTime}})
-          </button>
-          <audio id="exercise-audio" loop>
-            <source
-              src="assets/music/mixkit-rising-forest-471.mp3"
-              type="audio/mpeg"
-            />
-            Your browser does not support the audio element.
-          </audio>
-
           <footer>
+            <button @click="startRoutine" v-if="timeouts.length === 0">
+              Start Routine (⏲ {{totalExerciseTime}})
+            </button>
+            <button class="secondary" @click="stop" v-else>Stop</button>
+            <audio id="exercise-audio" loop>
+              <source
+                src="assets/music/mixkit-rising-forest-471.mp3"
+                type="audio/mpeg"
+              />
+              Your browser does not support the audio element.
+            </audio>
+
             <details>
               <summary>Routine Exercises</summary>
-              <article>
-                <button
-                  v-for="(timer, index) in timers"
-                  :key="timer"
-                  @click="startSingleTimerWithMusic(timer)"
-                >
-                  {{timer.name}} {{timer.time}} seconds
-                </button>
-              </article>
+              <br />
+              <button
+                v-for="(timer, index) in timers"
+                :key="timer"
+                @click="startSingleTimerWithMusic(timer)"
+              >
+                 {{timer.name}} {{timer.time}} seconds {{timer.break? "⌛" : "💪"}}
+              </button>
             </details>
           </footer>
         </article>
@@ -281,8 +296,8 @@
           </label>
 
           <button type="button">Add Exercise 💪</button>
-          <label style="text-align: center;">OR</label>
-          <br>
+          <label style="text-align: center">OR</label>
+          <br />
           <button type="button">Add Break ⌛</button>
         </article>
       </div>

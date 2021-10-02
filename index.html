@@ -4,21 +4,72 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bhel - your exercise timer</title>
+    <title>Bhel - Your Light Exercise Timer ⏲</title>
     <link
       rel="stylesheet"
       href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
     />
     <script type="module">
       import { createApp } from "https://unpkg.com/petite-vue?module";
+      var interval;
+      var msg = new SpeechSynthesisUtterance();
+      msg.volume = 1;
+      var audioPlayer = document.getElementById("exercise-audio");
+      // var context = new AudioContext();
 
+      // const loud = (freq = 520, duration = 250, vol = 50) => {
+      //   const oscillator = context.createOscillator();
+      //   const gain = context.createGain();
+      //   oscillator.connect(gain);
+      //   oscillator.frequency.value = freq;
+      //   oscillator.type = "square";
+      //   gain.connect(context.destination);
+      //   gain.gain.value = vol * 0.01;
+      //   oscillator.start(context.currentTime);
+      //   oscillator.stop(context.currentTime + duration * 0.001);
+      // };
+
+      // const flat = (freq = 2500, duration = 450, vol = 50) => {
+      //   const oscillator = context.createOscillator();
+      //   const gain = context.createGain();
+      //   oscillator.connect(gain);
+      //   oscillator.frequency.value = freq;
+      //   oscillator.type = "sine";
+      //   gain.connect(context.destination);
+      //   gain.gain.value = vol * 0.01;
+      //   oscillator.start(context.currentTime);
+      //   oscillator.stop(context.currentTime + duration * 0.001);
+      // };
+      function durationString(timer) {
+        var minutes = parseInt(timer / 60, 10);
+        var seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+        return minutes + ":" + seconds;
+      }
+      function speak(text, rate) {
+        audioPlayer.volume = 0.1;
+        msg.rate = rate ?? 1;
+        msg.text = text;
+        window.speechSynthesis.speak(msg);
+        setTimeout(() => {
+          audioPlayer.volume = 0.4;
+        }, 1000);
+      }
       createApp({
         // exposed to all expressions
+        gap: 2,
         timers: [
           {
-            name: "Shoulder Rotation",
+            name: "Forward Shoulder Rotation",
             break: false,
-            time: 45,
+            time: 15,
+          },
+          {
+            name: "Reverse Shoulder Rotation",
+            break: false,
+            time: 15,
           },
           {
             name: "Jumping Jacks",
@@ -29,6 +80,11 @@
             name: "Butt Kicks",
             break: false,
             time: 45,
+          },
+          {
+            name: "Break",
+            break: false,
+            time: 15,
           },
           {
             name: "Leg Raise",
@@ -48,7 +104,7 @@
           {
             name: "Break",
             break: false,
-            time: 15,
+            time: 10,
           },
           {
             name: "Knee High Crunches",
@@ -58,7 +114,7 @@
           {
             name: "Break",
             break: false,
-            time: 15,
+            time: 10,
           },
           {
             name: "Wall Pushup Bicep",
@@ -68,7 +124,7 @@
           {
             name: "Break",
             break: false,
-            time: 15,
+            time: 10,
           },
           {
             name: "Wall Pushup Tricep",
@@ -78,41 +134,125 @@
           {
             name: "Break",
             break: false,
-            time: 15,
+            time: 10,
           },
         ],
+        routineTimeouts: [],
         // getters
-        get plusOne() {
-          return this.count + 1;
+        get totalExerciseTime() {
+          return durationString(
+            this.timers.reduce((prev, next) => prev + next.time + this.gap, 0)
+          );
         },
         // methods
         increment() {
           this.count++;
         },
-      }).mount();
+
+        startTimer(duration, timerName) {
+          clearInterval(interval);
+          var timer = duration,
+            minutes,
+            seconds;
+          var display = document.querySelector("#safeTimerDisplay");
+          document.getElementById("timerName").innerText = timerName;
+          display.innerHTML = durationString(timer);
+          msg.lang = navigator.language;
+          speak(timerName + " " + `${duration} seconds`);
+          interval = setInterval(() => {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            display.innerHTML = durationString(timer);
+
+            if (timer > 0 && timer < 6) {
+              // loud();
+              speak(timer, 2);
+            }
+            if (--timer < 0) {
+              // flat();
+              msg.text = "And Done";
+              speak("And Done", 2);
+              clearInterval(interval);
+              // timer = duration; // uncomment this line to reset timer automatically after reaching 0
+            }
+          }, 1000);
+        },
+        startSingleTimerWithMusic(timer) {
+          audioPlayer.load();
+          audioPlayer.play();
+          this.routineTimeouts.forEach((timeout) => clearTimeout(timeout));
+          this.startTimer(timer.time, timer.name);
+          this.routineTimeouts.push(setTimeout(
+            () => (audioPlayer.volume = audioPlayer.volume / 2),
+            timer.time * 1000
+          ))
+          ;
+          this.routineTimeouts.push(setTimeout(
+            () => (audioPlayer.volume = audioPlayer.volume / 2),
+            (timer.time + (this.gap / 2)) * 1000
+          ))
+          ;
+          this.routineTimeouts.push(
+          setTimeout(() => audioPlayer.pause(), (timer.time + this.gap) * 1000));
+        },
+        startRoutine() {
+          
+          var lastTimeout = 0;
+          this.timers.forEach((timer) => {
+            this.routineTimeouts.push(
+              setTimeout(
+                () => this.startTimer(timer.time, timer.name),
+                lastTimeout * 1000
+              )
+            );
+            lastTimeout += timer.time + this.gap;
+          });
+          audioPlayer.play();
+        },
+      }).mount("#app");
     </script>
   </head>
   <body>
-    <main class="container">
+    <main class="container" id="app">
       <hgroup style="text-align: center">
         <h1>Bhel</h1>
-        <h4>Your Exercise Timer ⏲</h4>
+        <h4>Your Light Exercise Timer ⏲</h4>
       </hgroup>
       <!-- Grid -->
       <div class="grid">
         <article>
           <hgroup style="text-align: center">
-            <h2 id="safeTimerDisplay">00:00</h2>
-            <h3 id="timerName">Choose an Exercise</h3>
+            <h1 id="safeTimerDisplay">00:00</h1>
+            <h4 id="timerName">Tap Start to Exercise</h4>
           </hgroup>
-          <button class="contrast">Start</button>
-          <button
-            v-for="(timer, index) in timers"
-            :key="timer"
-            @click="startTimer(timer.time, timer.name)"
-          >
-            {{timer.name}} {{index}}
+          <button class="contrast" @click="startRoutine">
+            Start Routine (⏲ {{totalExerciseTime}})
           </button>
+          <audio id="exercise-audio" loop>
+            <source
+              src="assets/music/mixkit-rising-forest-471.mp3"
+              type="audio/mpeg"
+            />
+            Your browser does not support the audio element.
+          </audio>
+
+          <footer>
+            <details>
+              <summary>Routine Exercises</summary>
+              <article>
+                <button
+                  v-for="(timer, index) in timers"
+                  :key="timer"
+                  @click="startSingleTimerWithMusic(timer)"
+                >
+                  {{timer.name}} {{timer.time}} seconds
+                </button>
+              </article>
+            </details>
+          </footer>
         </article>
         <article>
           <label for="firstname">
@@ -140,81 +280,18 @@
             />
           </label>
 
-          <button type="button">+ Exercise</button>
-          <div>OR</div>
-          <button type="button">+ Break</button>
+          <button type="button">Add Exercise 💪</button>
+          <label style="text-align: center;">OR</label>
+          <br>
+          <button type="button">Add Break ⌛</button>
         </article>
       </div>
+      <footer>
+        music from:
+        <a href="https://mixkit.co/" target="_blank" rel="noopener"> Mixkit </a>
+      </footer>
     </main>
 
-    <script>
-      var interval;
-      var msg = new SpeechSynthesisUtterance();
-      var context = new AudioContext();
-
-      const loud = (freq = 520, duration = 250, vol = 50) => {
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
-        oscillator.connect(gain);
-        oscillator.frequency.value = freq;
-        oscillator.type = "square";
-        gain.connect(context.destination);
-        gain.gain.value = vol * 0.01;
-        oscillator.start(context.currentTime);
-        oscillator.stop(context.currentTime + duration * 0.001);
-      };
-
-      const flat = (freq = 2500, duration = 450, vol = 50) => {
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
-        oscillator.connect(gain);
-        oscillator.frequency.value = freq;
-        oscillator.type = "sine";
-        gain.connect(context.destination);
-        gain.gain.value = vol * 0.01;
-        oscillator.start(context.currentTime);
-        oscillator.stop(context.currentTime + duration * 0.001);
-      };
-
-      function startTimer(duration, timerName) {
-        clearInterval(interval);
-        var timer = duration,
-          minutes,
-          seconds;
-        var display = document.querySelector("#safeTimerDisplay");
-        document.getElementById("timerName").innerText = timerName;
-        msg.lang = "en-IN";
-        msg.rate = 1;
-        msg.volume = 10;
-        msg.text = timerName;
-        window.speechSynthesis.speak(msg);
-        interval = setInterval(function () {
-          minutes = parseInt(timer / 60, 10);
-          seconds = parseInt(timer % 60, 10);
-
-          minutes = minutes < 10 ? "0" + minutes : minutes;
-          seconds = seconds < 10 ? "0" + seconds : seconds;
-          display.innerHTML = minutes + ":" + seconds;
-
-          if (timer > 0 && timer < 6) {
-            // loud();
-            msg.rate = 2;
-            msg.text = timer;
-            window.speechSynthesis.speak(msg);
-          }
-          if (--timer < 0) {
-            // flat();
-            msg.rate = 2;
-            msg.text = "And Done";
-            window.speechSynthesis.speak(msg);
-            clearInterval(interval);
-            // timer = duration; // uncomment this line to reset timer automatically after reaching 0
-          }
-        }, 1000);
-      }
-
-      function addExercise() {}
-      function addBreak() {}
-    </script>
+    <script></script>
   </body>
 </html>

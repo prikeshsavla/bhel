@@ -9,41 +9,38 @@
       rel="stylesheet"
       href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
     />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="manifest" href="site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <script src="NoSleep.min.js"></script>
+    <script>
+      // The wake lock sentinel.
+      let wakeLock = null;
+      var noSleep = new NoSleep();
+      noSleep.enable();
+      //Function that attempts to request a screen wake lock.
+      const requestWakeLock = async () => {
+        try {
+          wakeLock = await navigator.wakeLock.request();
+          wakeLock.addEventListener("release", () => {
+            console.log("Screen Wake Lock released:", wakeLock.released);
+          });
+          console.log("Screen Wake Lock released:", wakeLock.released);
+        } catch (err) {
+          console.error(`${err.name}, ${err.message}`);
+        }
+      };
+
+      // // Request a screen wake lock…
+      requestWakeLock();
+    </script>
     <script type="module">
       import { createApp } from "https://unpkg.com/petite-vue?module";
       var interval;
       var msg = new SpeechSynthesisUtterance();
       msg.volume = 1;
       var audioPlayer = document.getElementById("exercise-audio");
-      // var context = new AudioContext();
-
-      // const loud = (freq = 520, duration = 250, vol = 50) => {
-      //   const oscillator = context.createOscillator();
-      //   const gain = context.createGain();
-      //   oscillator.connect(gain);
-      //   oscillator.frequency.value = freq;
-      //   oscillator.type = "square";
-      //   gain.connect(context.destination);
-      //   gain.gain.value = vol * 0.01;
-      //   oscillator.start(context.currentTime);
-      //   oscillator.stop(context.currentTime + duration * 0.001);
-      // };
-
-      // const flat = (freq = 2500, duration = 450, vol = 50) => {
-      //   const oscillator = context.createOscillator();
-      //   const gain = context.createGain();
-      //   oscillator.connect(gain);
-      //   oscillator.frequency.value = freq;
-      //   oscillator.type = "sine";
-      //   gain.connect(context.destination);
-      //   gain.gain.value = vol * 0.01;
-      //   oscillator.start(context.currentTime);
-      //   oscillator.stop(context.currentTime + duration * 0.001);
-      // };
       function durationString(timer) {
         var minutes = parseInt(timer / 60, 10);
         var seconds = parseInt(timer % 60, 10);
@@ -63,131 +60,115 @@
       }
       createApp({
         // exposed to all expressions
-        gap: 2,
-        timers: [
+        form:{name: "", time: 15},
+        gap: 4,
+        activeTimer: { time: 0, name: "Tap Start to Exercise" },
+        defaultTimers: [
           {
             name: "Forward Shoulder Rotation",
-            break: false,
             time: 15,
           },
           {
             name: "Reverse Shoulder Rotation",
-            break: false,
             time: 15,
           },
           {
             name: "Jumping Jacks",
-            break: false,
             time: 45,
           },
           {
             name: "Butt Kicks",
-            break: false,
             time: 45,
           },
           {
             name: "Break",
-            break: true,
             time: 15,
           },
           {
             name: "Leg Raise",
-            break: false,
             time: 30,
           },
           {
             name: "Break",
-            break: true,
             time: 15,
           },
           {
             name: "Leg Scissors",
-            break: false,
             time: 30,
           },
           {
             name: "Break",
-            break: true,
             time: 10,
           },
           {
             name: "Knee High Crunches",
-            break: false,
             time: 30,
           },
           {
             name: "Break",
-            break: true,
             time: 10,
           },
           {
             name: "Wall Pushup Bicep",
-            break: false,
             time: 30,
           },
           {
             name: "Break",
-            break: true,
             time: 10,
           },
           {
             name: "Wall Pushup Tricep",
-            break: false,
             time: 30,
           },
           {
             name: "Break",
-            break: true,
             time: 10,
           },
         ],
+        timers: JSON.parse(window.localStorage.getItem('bhel-routine')) ?? [],
         timeouts: [],
         // getters
-        get totalExerciseTime() {
+        get activeTimeString() {
+          return durationString(this.activeTimer.time);
+        },
+        get totalRoutineTime() {
           return durationString(
             this.timers.reduce((prev, next) => prev + next.time + this.gap, 0)
           );
         },
-        // methods
-        increment() {
-          this.count++;
+        setRoutine(routine){
+          this.timers = routine;
+          window.localStorage.setItem("bhel-routine", JSON.stringify(this.timers));
         },
-
-        startTimer(duration, timerName) {
+        addTimer(){
+          var timers = Object.values(this.timers);
+          timers.push(this.form);
+          this.setRoutine(timers);
+        },
+        startTimer(timer) {
           clearInterval(interval);
-          var timer = duration,
-            minutes,
-            seconds;
-          var display = document.querySelector("#safeTimerDisplay");
-          document.getElementById("timerName").innerText = timerName;
-          display.innerHTML = durationString(timer);
+          this.activeTimer = timer;
+          var duration = this.activeTimer.time;
           msg.lang = navigator.language;
-          speak(timerName + " " + `${duration} seconds`);
+          speak(timer.name + " " + `${this.activeTimer.time} seconds`);
           interval = setInterval(() => {
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            display.innerHTML = durationString(timer);
-
-            if (timer > 0 && timer < 6) {
+            this.activeTimer.time = duration;
+            if (duration > 0 && duration < 6) {
               // loud();
-              speak(timer, 2);
+              speak(duration, 2);
             }
-            if (--timer < 0) {
+            if (--duration < 0) {
               // flat();
               msg.text = "And Done";
               speak("And Done", 2);
               clearInterval(interval);
-              // timer = duration; // uncomment this line to reset timer automatically after reaching 0
             }
           }, 1000);
         },
         startSingleTimerWithMusic(timer) {
           audioPlayer.load();
           audioPlayer.play();
-          this.startTimer(timer.time, timer.name);
+          this.startTimer(timer);
           this.timeouts.push(
             setTimeout(
               () => (audioPlayer.volume = audioPlayer.volume / 2),
@@ -201,17 +182,17 @@
             )
           );
           this.timeouts.push(
-            setTimeout(() => audioPlayer.pause(), (timer.time + this.gap) * 1000)
+            setTimeout(
+              () => audioPlayer.pause(),
+              (timer.time + this.gap) * 1000
+            )
           );
         },
         startRoutine() {
           var lastTimeout = 0;
           this.timers.forEach((timer) => {
             this.timeouts.push(
-              setTimeout(
-                () => this.startTimer(timer.time, timer.name),
-                lastTimeout * 1000
-              )
+              setTimeout(() => this.startTimer(timer), lastTimeout * 1000)
             );
             lastTimeout += timer.time + this.gap;
           });
@@ -223,12 +204,12 @@
         },
         stop() {
           clearInterval(interval);
-          document.getElementById("safeTimerDisplay").innerText =
-            durationString(0);
-          document.getElementById("timerName").innerText =
-            "Tap Start to Exercise";
+          this.activeTimer = {
+            time: 0,
+            name: "Tap Start to Exercise",
+          };
           audioPlayer.pause();
-          window.speechSynthesis.cancel()
+          window.speechSynthesis.cancel();
           this.clearTimeouts();
         },
       }).mount("#app");
@@ -244,12 +225,13 @@
       <div class="grid">
         <article>
           <hgroup style="text-align: center">
-            <h1 id="safeTimerDisplay">00:00</h1>
-            <h4 id="timerName">Tap Start to Exercise</h4>
+            <h1>{{activeTimeString}}</h1>
+            <h2>{{activeTimer.name}}</h2>
           </hgroup>
+
           <footer>
             <button @click="startRoutine" v-if="timeouts.length === 0">
-              Start Routine (💪 {{totalExerciseTime}})
+              Start Routine (💪 {{totalRoutineTime}})
             </button>
             <button class="secondary" @click="stop" v-else>Stop</button>
             <audio id="exercise-audio" loop>
@@ -261,6 +243,17 @@
             </audio>
 
             <details>
+              <summary>Routines</summary>
+              <br />
+              <button
+                class="secondary"
+                type="button"
+                @click="setRoutine(defaultTimers)"
+              >
+                Default Routine
+              </button>
+            </details>
+            <details v-if="timers.length">
               <summary>Routine Exercises</summary>
               <br />
               <button
@@ -268,7 +261,7 @@
                 :key="timer"
                 @click="startSingleTimerWithMusic(timer)"
               >
-                 {{timer.name}} {{timer.time}} seconds {{timer.break? "⌛" : "💪"}}
+                {{timer.name}} {{timer.time}} seconds
               </button>
             </details>
           </footer>
@@ -277,6 +270,7 @@
           <label for="firstname">
             Name
             <input
+              :model="form.name"
               type="text"
               value=""
               id="name"
@@ -288,6 +282,7 @@
           <label for="firstname">
             Seconds
             <input
+              :model="form.time"
               type="number"
               min="15"
               step="5"
@@ -298,11 +293,8 @@
               required
             />
           </label>
-
-          <button type="button">Add Exercise 💪</button>
-          <label style="text-align: center">OR</label>
-          <br />
-          <button type="button">Add Break ⌛</button>
+          <button type="button" @click="addTimer">Add Timer</button>
+          <footer></footer>
         </article>
       </div>
       <footer>

@@ -13,12 +13,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
     <link rel="manifest" href="site.webmanifest" />
-    <script src="NoSleep.min.js"></script>
     <script>
       // The wake lock sentinel.
       let wakeLock = null;
-      var noSleep = new NoSleep();
-      noSleep.enable();
       //Function that attempts to request a screen wake lock.
       const requestWakeLock = async () => {
         try {
@@ -60,7 +57,7 @@
       }
       createApp({
         // exposed to all expressions
-        form:{name: "", time: 15},
+        form: { name: "", time: 15 },
         gap: 4,
         activeTimer: { time: 0, name: "Tap Start to Exercise" },
         defaultTimers: [
@@ -125,7 +122,7 @@
             time: 10,
           },
         ],
-        timers: JSON.parse(window.localStorage.getItem('bhel-routine')) ?? [],
+        timers: JSON.parse(window.localStorage.getItem("bhel-routine")) ?? [],
         timeouts: [],
         // getters
         get activeTimeString() {
@@ -136,11 +133,14 @@
             this.timers.reduce((prev, next) => prev + next.time + this.gap, 0)
           );
         },
-        setRoutine(routine){
+        setRoutine(routine) {
           this.timers = routine;
-          window.localStorage.setItem("bhel-routine", JSON.stringify(this.timers));
+          window.localStorage.setItem(
+            "bhel-routine",
+            JSON.stringify(this.timers)
+          );
         },
-        addTimer(){
+        addTimer() {
           var timers = Object.values(this.timers);
           timers.push(this.form);
           this.setRoutine(timers);
@@ -213,6 +213,14 @@
           this.clearTimeouts();
         },
       }).mount("#app");
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker
+            .register("/bhel/sw.js")
+            .then((res) => console.log("service worker registered"))
+            .catch((err) => console.log("service worker not registered", err));
+        });
+      }
     </script>
   </head>
   <body>

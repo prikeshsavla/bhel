@@ -57,7 +57,7 @@
       }
       createApp({
         // exposed to all expressions
-        form: { name: "", time: 15 },
+        form: { name: "My Exercise", time: 15 },
         gap: 4,
         activeTimer: { time: 0, name: "Tap Start to Exercise" },
         defaultTimers: [
@@ -280,7 +280,6 @@
             <input
               :model="form.name"
               type="text"
-              value=""
               id="name"
               name="name"
               placeholder="Name"

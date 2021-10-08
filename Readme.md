@@ -7,7 +7,9 @@ Roadmap:
   - [x] Queued exercise
   - [x] Speak Exercise name
   - [x] Countdown final 5 seconds
-  - [ ] Keep phone awake ?
-  - [ ] Add and remove exercises
+  - [x] Keep phone awake ? (Wake lock add, works sometimes)
+  - [x] Add exercises
+  - [ ] Remove exercises
+  - [x] Works Offline
   - [ ] Refactor to become event driven
   - [ ] Exercise / usage analytics (Client side only)

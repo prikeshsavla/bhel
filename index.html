@@ -37,6 +37,7 @@
       var interval;
       var msg = new SpeechSynthesisUtterance();
       msg.volume = 1;
+      var lastTotalTimeSpent = parseInt(window.localStorage.getItem("bhel-total-time-spent"));
       var audioPlayer = document.getElementById("exercise-audio");
       function durationString(timer) {
         var minutes = parseInt(timer / 60, 10);
@@ -60,6 +61,7 @@
         form: { name: "My Exercise", time: 15 },
         gap: 4,
         activeTimer: { time: 0, name: "Tap Start to Exercise" },
+        totalTimeSpent: lastTotalTimeSpent && lastTotalTimeSpent != NaN  ? lastTotalTimeSpent : 0,
         defaultTimers: [
           {
             name: "Forward Shoulder Rotation",
@@ -133,12 +135,19 @@
             this.timers.reduce((prev, next) => prev + next.time + this.gap, 0)
           );
         },
+        get readableTotalTimeSpent(){
+          return durationString(this.totalTimeSpent);
+        },
         setRoutine(routine) {
           this.timers = routine;
           window.localStorage.setItem(
             "bhel-routine",
             JSON.stringify(this.timers)
           );
+        },
+        incrementTotalTime(){
+          this.totalTimeSpent = this.totalTimeSpent + 1
+            window.localStorage.setItem("bhel-total-time-spent", this.totalTimeSpent)
         },
         addTimer() {
           var timers = Object.values(this.timers);
@@ -152,6 +161,7 @@
           msg.lang = navigator.language;
           speak(timer.name + " " + `${this.activeTimer.time} seconds`);
           interval = setInterval(() => {
+            this.incrementTotalTime()
             this.activeTimer.time = duration;
             if (duration > 0 && duration < 6) {
               // loud();
@@ -213,7 +223,8 @@
           this.clearTimeouts();
         },
       }).mount("#app");
-      if ("serviceWorker" in navigator) {
+      if(window.location.host != "localhost"){
+        if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
           navigator.serviceWorker
             .register("/bhel/sw.js")
@@ -221,6 +232,8 @@
             .catch((err) => console.log("service worker not registered", err));
         });
       }
+      }
+      
     </script>
   </head>
   <body>
@@ -272,6 +285,11 @@
                 {{timer.name}} {{timer.time}} seconds
               </button>
             </details>
+            <details>
+              <summary>Stats</summary>
+              <br>
+              Overall Time Spent: {{readableTotalTimeSpent}}
+            </details>
           </footer>
         </article>
         <article>
@@ -307,6 +325,7 @@
       <footer>
         music from:
         <a href="https://mixkit.co/" target="_blank" rel="noopener"> Mixkit </a>
+       
       </footer>
     </main>
 

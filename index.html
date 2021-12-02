@@ -13,6 +13,19 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
     <link rel="manifest" href="site.webmanifest" />
+    <style>
+      [v-cloak] {
+        visibility: hidden;
+      }
+      .exercise {
+        width: 80%;
+        display: inline-block;
+      }
+      .remove-exercise {
+        width: 15%;
+        display: inline-block;
+      }
+    </style>
     <script>
       // The wake lock sentinel.
       let wakeLock = null;
@@ -21,9 +34,9 @@
         try {
           wakeLock = await navigator.wakeLock.request();
           wakeLock.addEventListener("release", () => {
-            console.log("Screen Wake Lock released:", wakeLock.released);
+            // console.log("Screen Wake Lock released:", wakeLock.released);
           });
-          console.log("Screen Wake Lock released:", wakeLock.released);
+          // console.log("Screen Wake Lock released:", wakeLock.released);
         } catch (err) {
           console.error(`${err.name}, ${err.message}`);
         }
@@ -37,7 +50,9 @@
       var interval;
       var msg = new SpeechSynthesisUtterance();
       msg.volume = 1;
-      var lastTotalTimeSpent = parseInt(window.localStorage.getItem("bhel-total-time-spent"));
+      var lastTotalTimeSpent = parseInt(
+        window.localStorage.getItem("bhel-total-time-spent")
+      );
       var audioPlayer = document.getElementById("exercise-audio");
       function durationString(timer) {
         var minutes = parseInt(timer / 60, 10);
@@ -58,10 +73,14 @@
       }
       createApp({
         // exposed to all expressions
-        form: { name: "My Exercise", time: 15 },
+        name: "My Exercise",
+        time: 15,
         gap: 4,
         activeTimer: { time: 0, name: "Tap Start to Exercise" },
-        totalTimeSpent: lastTotalTimeSpent && lastTotalTimeSpent != NaN  ? lastTotalTimeSpent : 0,
+        totalTimeSpent:
+          lastTotalTimeSpent && lastTotalTimeSpent != NaN
+            ? lastTotalTimeSpent
+            : 0,
         defaultTimers: [
           {
             name: "Forward Shoulder Rotation",
@@ -135,7 +154,7 @@
             this.timers.reduce((prev, next) => prev + next.time + this.gap, 0)
           );
         },
-        get readableTotalTimeSpent(){
+        get readableTotalTimeSpent() {
           return durationString(this.totalTimeSpent);
         },
         setRoutine(routine) {
@@ -145,13 +164,21 @@
             JSON.stringify(this.timers)
           );
         },
-        incrementTotalTime(){
-          this.totalTimeSpent = this.totalTimeSpent + 1
-            window.localStorage.setItem("bhel-total-time-spent", this.totalTimeSpent)
+        incrementTotalTime() {
+          this.totalTimeSpent = this.totalTimeSpent + 1;
+          window.localStorage.setItem(
+            "bhel-total-time-spent",
+            this.totalTimeSpent
+          );
         },
         addTimer() {
           var timers = Object.values(this.timers);
-          timers.push(this.form);
+          timers.push({ name: this.name, time: this.time });
+          this.setRoutine(timers);
+        },
+        removeIndexFromTimer(index) {
+          var timers = Object.values(this.timers);
+          timers.splice(index, 1);
           this.setRoutine(timers);
         },
         startTimer(timer) {
@@ -161,7 +188,7 @@
           msg.lang = navigator.language;
           speak(timer.name + " " + `${this.activeTimer.time} seconds`);
           interval = setInterval(() => {
-            this.incrementTotalTime()
+            this.incrementTotalTime();
             this.activeTimer.time = duration;
             if (duration > 0 && duration < 6) {
               // loud();
@@ -178,7 +205,7 @@
         startSingleTimerWithMusic(timer) {
           audioPlayer.load();
           audioPlayer.play();
-          this.startTimer(timer);
+          this.startTimer({...timer});
           this.timeouts.push(
             setTimeout(
               () => (audioPlayer.volume = audioPlayer.volume / 2),
@@ -193,7 +220,10 @@
           );
           this.timeouts.push(
             setTimeout(
-              () => audioPlayer.pause(),
+              () => {
+                audioPlayer.pause();
+                this.clearTimeouts();
+              },
               (timer.time + this.gap) * 1000
             )
           );
@@ -202,7 +232,7 @@
           var lastTimeout = 0;
           this.timers.forEach((timer) => {
             this.timeouts.push(
-              setTimeout(() => this.startTimer(timer), lastTimeout * 1000)
+              setTimeout(() => this.startTimer({...timer}), lastTimeout * 1000)
             );
             lastTimeout += timer.time + this.gap;
           });
@@ -223,17 +253,18 @@
           this.clearTimeouts();
         },
       }).mount("#app");
-      if(window.location.host != "localhost"){
+      if (window.location.host != "localhost") {
         if ("serviceWorker" in navigator) {
-        window.addEventListener("load", function () {
-          navigator.serviceWorker
-            .register("/bhel/sw.js")
-            .then((res) => console.log("service worker registered"))
-            .catch((err) => console.log("service worker not registered", err));
-        });
+          window.addEventListener("load", function () {
+            navigator.serviceWorker
+              .register("/bhel/sw.js")
+              .then((res) => console.log("service worker registered"))
+              .catch((err) =>
+                console.log("service worker not registered", err)
+              );
+          });
+        }
       }
-      }
-      
     </script>
   </head>
   <body>
@@ -243,7 +274,7 @@
         <h4>Your Light Exercise Timer 💪</h4>
       </hgroup>
       <!-- Grid -->
-      <div class="grid">
+      <div class="grid" v-cloak>
         <article>
           <hgroup style="text-align: center">
             <h1>{{activeTimeString}}</h1>
@@ -273,22 +304,34 @@
               >
                 Default Routine
               </button>
+              <button class="secondary" type="button" @click="setRoutine([])">
+                🚮 Empty Routine
+              </button>
             </details>
             <details v-if="timers.length">
-              <summary>Routine Exercises</summary>
+              <summary>Routine Exercises ({{timers.length}}) </summary>
               <br />
-              <button
-                v-for="(timer, index) in timers"
-                :key="timer"
-                @click="startSingleTimerWithMusic(timer)"
-              >
-                {{timer.name}} {{timer.time}} seconds
-              </button>
+              <template v-for="(timer, index) in timers">
+                <button
+                  :key="timer"
+                  class="exercise contrast"
+                  @click="startSingleTimerWithMusic(timer)"
+                >
+                  <small>{{timer.name}} {{timer.time}}s</small>
+                </button>
+                <button
+                  :key="`${timer}x`"
+                  class="remove-exercise secondary"
+                  @click="removeIndexFromTimer(index)"
+                >
+                  &times;
+                </button>
+              </template>
             </details>
             <details>
               <summary>Stats</summary>
-              <br>
-              Overall Time Spent: {{readableTotalTimeSpent}}
+              <br />
+              <small>Overall Time Spent: {{readableTotalTimeSpent}}</small>
             </details>
           </footer>
         </article>
@@ -296,7 +339,7 @@
           <label for="firstname">
             Name
             <input
-              :model="form.name"
+              v-model="name"
               type="text"
               id="name"
               name="name"
@@ -307,7 +350,7 @@
           <label for="firstname">
             Seconds
             <input
-              :model="form.time"
+              v-model="time"
               type="number"
               min="15"
               step="5"
@@ -319,16 +362,33 @@
             />
           </label>
           <button type="button" @click="addTimer">Add Timer</button>
-          <footer></footer>
         </article>
       </div>
       <footer>
-        music from:
-        <a href="https://mixkit.co/" target="_blank" rel="noopener"> Mixkit </a>
-       
+        <small>
+          audio:
+          <a href="https://mixkit.co/" target="_blank" rel="noopener">
+            Mixkit </a
+          >, styles:
+          <a href="https://picocss.com/" target="_blank" rel="noopener">
+            Pico </a
+          >, scripts:
+          <a
+            href="https://github.com/vuejs/petite-vue"
+            target="_blank"
+            rel="noopener"
+          >
+            petite-vue </a
+          >, made by:
+          <a
+            href="https://twitter.com/prikeshdexter"
+            target="_blank"
+            rel="noopener"
+          >
+            @prikeshdexter
+          </a>
+        </small>
       </footer>
     </main>
-
-    <script></script>
   </body>
 </html>

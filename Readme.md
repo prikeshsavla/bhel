@@ -9,7 +9,7 @@ Roadmap:
   - [x] Countdown final 5 seconds
   - [x] Keep phone awake ? (Wake lock add, works sometimes)
   - [x] Add exercises
-  - [ ] Remove exercises
+  - [x] Remove exercises
   - [x] Works Offline
   - [ ] Refactor to become event driven
-  - [ ] Exercise / usage analytics (Client side only)
+  - [x] Exercise / usage analytics (Client side only)

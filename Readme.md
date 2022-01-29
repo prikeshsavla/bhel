@@ -18,3 +18,5 @@ Roadmap:
   - [ ] Turn exercise to music instead of queues
   - [ ] Add Sets support
   - [ ] Add counter instead of timer
+  - [ ] Disable Music
+  - [ ] Select Music from a dropdown

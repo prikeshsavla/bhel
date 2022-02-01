@@ -2,6 +2,7 @@ const staticDevCoffee = "bhel"
 const assets = [
   "/bhel/",
   "/bhel/index.html",
+  "/bhel/index.js",
   "/bhel/assets/music/mixkit-rising-forest-471.mp3",
   "https://unpkg.com/petite-vue?module",
   "https://unpkg.com/@picocss/pico@latest/css/pico.min.css",

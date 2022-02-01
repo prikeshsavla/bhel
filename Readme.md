@@ -11,12 +11,11 @@ Roadmap:
   - [x] Add exercises
   - [x] Remove exercises
   - [x] Works Offline
-  - [ ] Refactor to become event driven
   - [x] Exercise / usage analytics (Client side only)
+  - [x] Enable / Disable Music
   - [ ] Move exercises
-  - [ ] Save different routines
-  - [ ] Turn exercise to music instead of queues
-  - [ ] Add Sets support
+  - [ ] Save a routine
+  - [ ] Refactor to become queue based
   - [ ] Add counter instead of timer
-  - [ ] Disable Music
-  - [ ] Select Music from a dropdown
+  - [ ] Add Sets support
+  - [ ] Save exercise to music

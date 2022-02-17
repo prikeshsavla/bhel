@@ -1,13 +1,24 @@
 import { createApp } from "https://unpkg.com/petite-vue?module";
 
-// The wake lock sentinel.
-// // Request a screen wake lock…
-try {
-  navigator.wakeLock.request();
-  screen.keepAwake = true
-} catch (err) {
-  console.error(`${err.name}, ${err.message}`);
-}
+var noSleep = new NoSleep();
+
+document.addEventListener(
+  "touchstart",
+  function enableNoSleep() {
+    document.removeEventListener("touchstart", enableNoSleep, false);
+    noSleep.enable();
+  },
+  false
+);
+
+document.addEventListener(
+  "click",
+  function enableNoSleep() {
+    document.removeEventListener("click", enableNoSleep, false);
+    noSleep.enable();
+  },
+  false
+);
 
 var interval;
 var msg = new SpeechSynthesisUtterance();
@@ -88,6 +99,22 @@ createApp({
       time: 10,
     },
     {
+      name: "Plank",
+      time: 45,
+    },
+    {
+      name: "Break",
+      time: 10,
+    },
+    {
+      name: "Forward Lunges",
+      time: 45,
+    },
+    {
+      name: "Break",
+      time: 10,
+    },
+    {
       name: "Wall Pushup Bicep",
       time: 30,
     },
@@ -106,7 +133,7 @@ createApp({
   ],
   timers: JSON.parse(window.localStorage.getItem("bhel-routine")) ?? [],
   timeouts: [],
-  music: true,
+  music: false,
   // getters
   get activeTimeString() {
     return durationString(this.activeTimer.time);
@@ -162,7 +189,7 @@ createApp({
     this.audioPlayer("load");
     this.audioPlayer("play");
     this.startTimer({ ...timer });
-    this.fadeOutAudio(timer.time );
+    this.fadeOutAudio(timer.time);
   },
   startRoutine() {
     var lastTimeout = 0;
@@ -173,13 +200,13 @@ createApp({
       lastTimeout += timer.time + this.gap;
     });
     this.fadeOutAudio(lastTimeout);
-    this.audioPlayer('play');
+    this.audioPlayer("play");
   },
   clearTimeouts() {
     this.timeouts.forEach((timeout) => clearTimeout(timeout));
     this.timeouts = [];
   },
-  fadeOutAudio(lastTimeout){
+  fadeOutAudio(lastTimeout) {
     this.timeouts.push(
       setTimeout(
         () => (audioPlayer.volume = audioPlayer.volume / 2),
@@ -194,7 +221,7 @@ createApp({
     );
     this.timeouts.push(
       setTimeout(() => {
-        this.audioPlayer('pause');
+        this.audioPlayer("pause");
         this.clearTimeouts();
       }, (lastTimeout + this.gap) * 1000)
     );
@@ -206,7 +233,7 @@ createApp({
       name: "Tap Start to Exercise",
     };
 
-    this.audioPlayer('pause');
+    this.audioPlayer("pause");
     window.speechSynthesis.cancel();
     this.clearTimeouts();
   },

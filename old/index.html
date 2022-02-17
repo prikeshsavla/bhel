@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1"
+    />
+    <title>Bhel - Your Light Exercise Timer 💪</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
+    />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <style>
+      [v-cloak] {
+        visibility: hidden;
+      }
+      .exercise {
+        width: 80%;
+        display: inline-block;
+      }
+      .remove-exercise {
+        width: 15%;
+        display: inline-block;
+      }
+    </style>
+    <script src="NoSleep.min.js"></script>
+    <script src="index.js" type="module"></script>
+  </head>
+  <body>
+    <main class="container" id="app">
+      <hgroup style="text-align: center">
+        <h1>Bhel</h1>
+        <h4>Your Light Exercise Timer 💪</h4>
+      </hgroup>
+      <!-- Grid -->
+      <div class="grid" v-cloak>
+        <article>
+          <hgroup style="text-align: center">
+            <h1>{{activeTimeString}}</h1>
+            <h2>{{activeTimer.name}}</h2>
+          </hgroup>
+          <fieldset>
+            🎵 Music: Off
+            <input
+              type="checkbox"
+              @change="handleAudio"
+              id="switch"
+              v-model="music"
+              name="switch"
+              role="switch"
+            />On
+          </fieldset>
+
+          <footer>
+            <button @click="startRoutine" v-if="timeouts.length === 0">
+              Start Routine (💪 {{totalRoutineTime}})
+            </button>
+            <button class="secondary" @click="stop" v-else>Stop</button>
+            <audio id="exercise-audio" loop>
+              <source
+                src="assets/music/mixkit-rising-forest-471.mp3"
+                type="audio/mpeg"
+              />
+              Your browser does not support the audio element.
+            </audio>
+
+            <details>
+              <summary>Routines</summary>
+              <br />
+              <button
+                class="secondary"
+                type="button"
+                @click="setRoutine(defaultTimers)"
+              >
+                Default Routine
+              </button>
+              <button class="secondary" type="button" @click="setRoutine([])">
+                🚮 Clear Routine
+              </button>
+            </details>
+            <details v-if="timers.length">
+              <summary>Routine Exercises ({{timers.length}})</summary>
+              <br />
+              <template v-for="(timer, index) in timers">
+                <button
+                  :key="timer"
+                  class="exercise contrast"
+                  @click="startSingleTimerWithMusic(timer)"
+                >
+                  <small>{{timer.name}} {{timer.time}}s</small>
+                </button>
+                <button
+                  :key="`${timer}x`"
+                  class="remove-exercise secondary"
+                  @click="removeIndexFromTimer(index)"
+                >
+                  &times;
+                </button>
+              </template>
+            </details>
+            <details>
+              <summary>Stats</summary>
+              <br />
+              <small>Overall Time Spent: {{readableTotalTimeSpent}}</small>
+            </details>
+          </footer>
+        </article>
+        <article>
+          <label for="firstname">
+            Name
+            <input
+              v-model="name"
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Name"
+              required
+            />
+          </label>
+          <label for="firstname">
+            Seconds
+            <input
+              v-model="time"
+              type="number"
+              min="15"
+              step="5"
+              value="15"
+              id="time"
+              name="time"
+              placeholder="time"
+              required
+            />
+          </label>
+          <button type="button" @click="addTimer">Add Timer</button>
+        </article>
+      </div>
+      <footer>
+        <small>
+          audio:
+          <a href="https://mixkit.co/" target="_blank" rel="noopener">
+            Mixkit </a
+          >, styles:
+          <a href="https://picocss.com/" target="_blank" rel="noopener">
+            Pico </a
+          >, scripts:
+          <a
+            href="https://github.com/vuejs/petite-vue"
+            target="_blank"
+            rel="noopener"
+          >
+            petite-vue </a
+          >, made by:
+          <a
+            href="https://twitter.com/prikeshdexter"
+            target="_blank"
+            rel="noopener"
+          >
+            @prikeshdexter </a
+          >, Github:
+          <a
+            href="https://github.com/prikeshsavla/bhel"
+            target="_blank"
+            rel="noopener"
+          >
+            bhel
+          </a>
+        </small>
+      </footer>
+    </main>
+  </body>
+</html>

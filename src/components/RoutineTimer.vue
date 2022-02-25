@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { reactive, computed, defineEmits } from "vue";
+import { useRoutine } from "../stores/routine";
 
 const emit = defineEmits<{
   (e: "music", value: string): void;
   (e: "changeVolume", value: number): void;
 }>();
+
+const store = useRoutine();
 function durationString(timer: number) {
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
@@ -24,16 +27,43 @@ interface Routine {
 }
 
 interface State {
-  activeTimer: Exercise;
-  totalTimeSpent: number;
-  activeRoutine: Routine;
-  routines: Routine[];
   timeouts: any[];
   music: any;
 }
+
+const gap = 2;
+
+let singleSecondInterval: any;
+let state: State = reactive({
+  timeouts: [],
+  music: false,
+});
 const changeVolume = (volume: number) => {
   emit("changeVolume", volume);
 };
+const musicPlayer = (command: string) => {
+  if (command === "pause" || state.music) {
+    emit("music", command);
+  }
+};
+const startTimer = (exercise: Exercise) => {
+  speak(exercise.name + " " + `${exercise.time} seconds`, 1);
+  clearInterval(singleSecondInterval);
+  store.setActiveTimer(exercise);
+  let duration = exercise.time;
+  singleSecondInterval = setInterval(() => {
+    store.incrementTotalTime();
+    store.setActiveTimer({ name: store.activeTimer.name, time: duration });
+    if (duration > 0 && duration < 6) {
+      speak(String(duration), 2);
+    }
+    if (--duration < 0) {
+      speak("And Done", 2);
+      clearInterval(singleSecondInterval);
+    }
+  }, 1000);
+};
+
 const speak = (text: string, rate: number) => {
   let msg = new SpeechSynthesisUtterance();
   msg.lang = navigator.language;
@@ -46,152 +76,28 @@ const speak = (text: string, rate: number) => {
     changeVolume(0.4);
   }, 1000);
 };
-const gap = 2;
-
-let interval: any;
-let state: State = reactive({
-  activeTimer: { time: 0, name: "Tap Start to Exercise" },
-  totalTimeSpent: parseInt(
-    window.localStorage.getItem("bhel-total-time-spent") ?? "0"
-  ),
-  activeRoutine: JSON.parse(
-    window.localStorage.getItem("bhel-routine") ?? '{"exercises": []}'
-  ) ?? { exercises: [] },
-  routines: [
-    {
-      name: "Start Routine",
-      exercises: [
-        {
-          name: "Start",
-          time: 7,
-        },
-      ],
-    },
-    {
-      name: "Default Routine",
-      exercises: [
-        {
-          name: "Forward Shoulder Rotation",
-          time: 15,
-        },
-        {
-          name: "Reverse Shoulder Rotation",
-          time: 15,
-        },
-        {
-          name: "Jumping Jacks",
-          time: 45,
-        },
-        {
-          name: "Butt Kicks",
-          time: 45,
-        },
-        {
-          name: "Break",
-          time: 15,
-        },
-        {
-          name: "Leg Raise",
-          time: 30,
-        },
-        {
-          name: "Break",
-          time: 15,
-        },
-        {
-          name: "Leg Scissors",
-          time: 30,
-        },
-        {
-          name: "Break",
-          time: 10,
-        },
-        {
-          name: "Knee High Crunches",
-          time: 30,
-        },
-        {
-          name: "Break",
-          time: 10,
-        },
-        {
-          name: "Plank",
-          time: 45,
-        },
-        {
-          name: "Break",
-          time: 10,
-        },
-        {
-          name: "Forward Lunges",
-          time: 45,
-        },
-        {
-          name: "Break",
-          time: 10,
-        },
-        {
-          name: "Wall Pushup Bicep",
-          time: 30,
-        },
-        {
-          name: "Break",
-          time: 10,
-        },
-        {
-          name: "Wall Pushup Tricep",
-          time: 30,
-        },
-        {
-          name: "Break",
-          time: 10,
-        },
-      ],
-    },
-    {
-      name: "🆕 New Routine",
-      exercises: [],
-    },
-  ],
-  timeouts: [],
-  music: false,
-});
-
-const musicPlayer = (command: string) => {
-  if (command === "pause" || state.music) {
-    emit("music", command);
-  }
+const clearTimeouts = () => {
+  state.timeouts.forEach((timeout) => clearTimeout(timeout));
+  state.timeouts = [];
 };
+
 const toggleMusic = () => {
   state.music = !state.music;
-  if (state.music && state.activeTimer.time > 0) {
+  if (state.music && store.activeTimer.time > 0) {
     musicPlayer("play");
   } else {
     musicPlayer("pause");
   }
 };
-
-const activeTimeString = computed(() => {
-  return durationString(state.activeTimer.time);
-});
-
-const totalRoutineTime = computed(() =>
-  durationString(
-    state.activeRoutine.exercises.reduce(
-      (totalTime: number, next: Exercise) => totalTime + next.time,
-      0
-    )
-  )
-);
-
-const setRoutine = (routine: Routine) => {
-  state.activeRoutine = { ...routine };
-  window.localStorage.setItem("bhel-routine", JSON.stringify(routine));
+const startSingleTimerWithMusic = (timer: Exercise) => {
+  musicPlayer("load");
+  musicPlayer("play");
+  startTimer({ ...timer });
+  fadeOutAudio(timer.time);
 };
-
 const startRoutine = () => {
   var lastTimeout = 0;
-  state.activeRoutine.exercises.forEach((timer) => {
+  store.activeRoutine.exercises.forEach((timer) => {
     state.timeouts.push(
       setTimeout(() => startTimer({ ...timer }), lastTimeout * 1000)
     );
@@ -199,6 +105,16 @@ const startRoutine = () => {
   });
   fadeOutAudio(lastTimeout);
   musicPlayer("play");
+};
+const stop = () => {
+  clearInterval(singleSecondInterval);
+  store.setActiveTimer({
+    time: 0,
+    name: "Tap Start to Exercise",
+  });
+  musicPlayer("pause");
+  window.speechSynthesis.cancel();
+  clearTimeouts();
 };
 
 const fadeOutAudio = (lastTimeout: number) => {
@@ -213,94 +129,6 @@ const fadeOutAudio = (lastTimeout: number) => {
     }, (lastTimeout + gap) * 1000)
   );
 };
-const clearTimeouts = () => {
-  state.timeouts.forEach((timeout) => clearTimeout(timeout));
-  state.timeouts = [];
-};
-
-const startTimer = (exercise: Exercise) => {
-  clearInterval(interval);
-  state.activeTimer = exercise;
-  let duration = state.activeTimer.time;
-
-  speak(exercise.name + " " + `${state.activeTimer.time} seconds`, 1);
-  interval = setInterval(() => {
-    incrementTotalTime();
-    state.activeTimer.time = duration;
-    if (duration > 0 && duration < 6) {
-      // loud();
-      speak(String(duration), 2);
-    }
-    if (--duration < 0) {
-      // flat();
-      speak("And Done", 2);
-      clearInterval(interval);
-    }
-  }, 1000);
-};
-
-const incrementTotalTime = () => {
-  state.totalTimeSpent += 1;
-  window.localStorage.setItem(
-    "bhel-total-time-spent",
-    String(state.totalTimeSpent)
-  );
-};
-
-const startSingleTimerWithMusic = (timer: Exercise) => {
-  musicPlayer("load");
-  musicPlayer("play");
-  startTimer({ ...timer });
-  fadeOutAudio(timer.time);
-};
-
-const removeFromRoutine = (index: number) => {
-  var timers = Object.values(state.activeRoutine.exercises);
-  timers.splice(index, 1);
-  state.activeRoutine.exercises = timers;
-  setRoutine(state.activeRoutine);
-};
-
-const readableTotalTimeSpent = computed(() => {
-  return durationString(state.totalTimeSpent);
-});
-
-const stop = () => {
-  clearInterval(interval);
-  state.activeTimer = {
-    time: 0,
-    name: "Tap Start to Exercise",
-  };
-
-  musicPlayer("pause");
-  window.speechSynthesis.cancel();
-  clearTimeouts();
-};
-const addTimerFromForm = (event: any) => {
-  const exercise: Exercise = { name: "", time: 0 };
-  new FormData(event.target).forEach((value, key: string) => {
-    if (key === "name") {
-      exercise.name = value.toString();
-    }
-    if (key === "time") {
-      exercise.time = parseInt(value.toString());
-    }
-  });
-  addTimer(exercise.name, exercise.time);
-};
-const addTimer = (name: string, time: number) => {
-  const lastExercise =
-    state.activeRoutine.exercises[state.activeRoutine.exercises.length - 1];
-  if (lastExercise && lastExercise.name === name) {
-    state.activeRoutine.exercises[
-      state.activeRoutine.exercises.length - 1
-    ].time = lastExercise.time + time;
-  } else {
-    state.activeRoutine.exercises.push({ name, time });
-  }
-
-  setRoutine(state.activeRoutine);
-};
 </script>
 
 <template>
@@ -308,8 +136,8 @@ const addTimer = (name: string, time: number) => {
     <div class="grid" v-cloak>
       <article>
         <div class="headings" style="text-align: center">
-          <h1>{{ activeTimeString }}</h1>
-          <h2>{{ state.activeTimer.name }}</h2>
+          <h1>{{ store.activeTimeString }}</h1>
+          <h2>{{ store.activeTimer.name }}</h2>
         </div>
         <fieldset>
           🎵 Music: Off
@@ -324,7 +152,7 @@ const addTimer = (name: string, time: number) => {
         </fieldset>
         <footer>
           <button @click="startRoutine" v-if="state.timeouts.length === 0">
-            Start Routine (💪 {{ totalRoutineTime }})
+            Start Routine (💪 {{ store.totalRoutineTime }})
           </button>
           <button class="secondary" @click="stop" v-else>Stop</button>
 
@@ -332,22 +160,22 @@ const addTimer = (name: string, time: number) => {
             <summary>Routines</summary>
             <br />
             <button
-              v-for="(routine, index) in state.routines"
+              v-for="(routine, index) in store.routines"
               :key="index + routine.name"
               class="secondary"
               type="button"
-              @click="setRoutine(routine)"
+              @click="store.setRoutine(routine)"
             >
               {{ routine.name }}
             </button>
           </details>
-          <details v-if="state.activeRoutine.exercises.length">
+          <details v-if="store.activeRoutine.exercises.length">
             <summary>
-              Routine Exercises ({{ state.activeRoutine.exercises.length }})
+              Routine Exercises ({{ store.activeRoutine.exercises.length }})
             </summary>
             <br />
             <div
-              v-for="(timer, index) in state.activeRoutine.exercises"
+              v-for="(timer, index) in store.activeRoutine.exercises"
               :key="timer.name"
             >
               <button
@@ -358,7 +186,7 @@ const addTimer = (name: string, time: number) => {
               </button>
               <button
                 class="remove-exercise secondary"
-                @click="removeFromRoutine(index)"
+                @click="store.removeFromRoutine(index)"
               >
                 &times;
               </button>
@@ -367,12 +195,14 @@ const addTimer = (name: string, time: number) => {
           <details>
             <summary>Stats</summary>
             <br />
-            <small>Overall Time Spent: {{ readableTotalTimeSpent }}</small>
+            <small
+              >Overall Time Spent: {{ store.readableTotalTimeSpent }}</small
+            >
           </details>
         </footer>
       </article>
       <article>
-        <form @submit.prevent="addTimerFromForm">
+        <form @submit.prevent="store.addTimerFromForm">
           <label for="name">
             Name
             <input
@@ -400,7 +230,7 @@ const addTimer = (name: string, time: number) => {
         </form>
 
         <div class="grid">
-          <button type="button" @click="addTimer('Break', 15)">
+          <button type="button" @click="store.addTimer('Break', 15)">
             Add Break (15s)
           </button>
         </div>

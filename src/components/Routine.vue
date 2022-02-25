@@ -10,8 +10,6 @@ const changeVolume = (volume: number) => {
   audioElement.volume = volume;
 };
 const musicPlayer = (command: String) => {
-  console.log("command", command);
-  const audioElement: any = document.getElementById("exercise-audio");
   switch (command) {
     case "load":
       audioElement.load();

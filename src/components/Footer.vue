@@ -6,13 +6,8 @@
       styles:
       <a href="https://picocss.com/" target="_blank" rel="noopener"> Pico </a>,
       scripts:
-      <a
-        href="https://github.com/vuejs/petite-vue"
-        target="_blank"
-        rel="noopener"
-      >
-        petite-vue </a
-      >, made by:
+      <a href="https://vuejs.org/" target="_blank" rel="noopener"> Vue 3 </a>,
+      made by:
       <a
         href="https://twitter.com/prikeshdexter"
         target="_blank"

@@ -1,9 +1,24 @@
-# Intro
-Bhelpuri is a light and savoury snack from India, and a type of chaat. It is made of puffed rice, vegetables and a tangy tamarind sauce, and has a crunchy texture    
-So a great food metaphor for excercising for individuals who want to loose weight.
-# Vue 3 + Typescript + Vite
+# Bhel
+A Minimal Light Exercise Timer 💪⏲
 
-Roadmap:
+## Table of Contents
+* Introduction
+* Technologies
+* Roadmap
+* Contribution
+
+## Introduction
+Bhel is a light and savoury snack from India, and a type of chaat. It is made of puffed rice, vegetables and a tangy tamarind sauce, and has a crunchy texture    
+So a great food metaphor for excercising for individuals who want to loose weight.
+
+## Technologies
+- Vue 3
+- Vite
+- Typescript
+- PicoCss
+- Netlify
+
+## Roadmap
   - [x] Exercise Timer
   - [x] Background Music
   - [x] Queued exercise
@@ -13,12 +28,18 @@ Roadmap:
   - [x] Add exercises
   - [x] Remove exercises
   - [x] Works Offline
-  - [ ] Refactor to become event driven
+  - [ ] ~~Refactor to become event driven~~
   - [x] Exercise / usage analytics (Client side only)
+  - [x] Complete v1
   - [ ] Move exercises
   - [ ] Save different routines
-  - [ ] Turn exercise to music instead of queues
-  - [ ] Add Sets support
+  - [ ] ~~Turn exercise to music instead of queues~~
+  - [ ] Add multiple Sets support
+  - [ ] Add Stretch / Warm up and Cool down sections
   - [ ] Add counter instead of timer
-  - [ ] Disable Music
+  - [x] Disable Music
   - [ ] Select Music from a dropdown
+  - [ ] Complete v2
+
+## Contribution
+Issues and feature suggestions are welcome

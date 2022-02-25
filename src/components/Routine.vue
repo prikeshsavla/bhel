@@ -6,7 +6,7 @@ let audioElement: any;
 onMounted(() => {
   audioElement = document.getElementById("exercise-audio");
 });
-const changeVolume = (volume) => {
+const changeVolume = (volume: number) => {
   audioElement.volume = volume;
 };
 const musicPlayer = (command: String) => {

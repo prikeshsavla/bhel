@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, defineEmits } from "vue";
+import { reactive, computed, defineEmits } from "vue";
 
 const emit = defineEmits<{
   (e: "music", value: string): void;
@@ -31,7 +31,7 @@ interface State {
   timeouts: any[];
   music: any;
 }
-const changeVolume = (volume) => {
+const changeVolume = (volume: number) => {
   emit("changeVolume", volume);
 };
 const speak = (text: string, rate: number) => {
@@ -49,9 +49,6 @@ const speak = (text: string, rate: number) => {
 const gap = 2;
 
 let interval: any;
-
-let name = ref("");
-let time = ref(0);
 let state: State = reactive({
   activeTimer: { time: 0, name: "Tap Start to Exercise" },
   totalTimeSpent: parseInt(
@@ -160,7 +157,7 @@ let state: State = reactive({
   music: false,
 });
 
-const musicPlayer = (command: String) => {
+const musicPlayer = (command: string) => {
   if (command === "pause" || state.music) {
     emit("music", command);
   }

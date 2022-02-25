@@ -34,7 +34,6 @@ export default defineConfig({
       }
   })],
   build: {
-    outDir: "docs",
     rollupOptions: {
       external: ["assets/music/mixkit-rising-forest-471.mp3" ]
     }

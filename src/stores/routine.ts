@@ -1,13 +1,5 @@
 import { defineStore } from "pinia";
-
-interface Exercise {
-  name: string;
-  time: number;
-}
-interface Routine {
-  name: string;
-  exercises: Exercise[];
-}
+import { Exercise, Routine } from "../models";
 
 interface RoutineState {
   activeTimer: Exercise;
@@ -35,15 +27,6 @@ export const useRoutine = defineStore("routine", {
         window.localStorage.getItem("bhel-total-time-spent") ?? "0"
       ),
       routines: [
-        {
-          name: "Start Routine",
-          exercises: [
-            {
-              name: "Start",
-              time: 7,
-            },
-          ],
-        },
         {
           name: "Default Routine",
           exercises: [

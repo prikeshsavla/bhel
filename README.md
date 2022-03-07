@@ -39,6 +39,7 @@ So a great food metaphor for excercising for individuals who want to loose weigh
   - [ ] Add counter instead of timer
   - [x] Disable Music
   - [ ] Select Music from a dropdown
+  - [ ] Change Background on Exercise
   - [ ] Complete v2
 
 ## Contribution

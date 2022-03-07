@@ -36,15 +36,3 @@ const musicPlayer = (command: String) => {
     </audio>
   </section>
 </template>
-
-<style scoped>
-.exercise {
-  width: 80%;
-  margin-right: 5px;
-  display: inline-block;
-}
-.remove-exercise {
-  width: calc(15% - 5px);
-  display: inline-block;
-}
-</style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, computed, defineEmits } from "vue";
+import { reactive } from "vue";
 import { useRoutine } from "../stores/routine";
 
 const emit = defineEmits<{

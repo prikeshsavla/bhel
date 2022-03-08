@@ -6,15 +6,29 @@ interface RoutineState {
   totalTimeSpent: number;
   activeRoutine: Routine;
   routines: Routine[];
+  musicEnabled: any;
+  player: string;
+  playerVolume: number;
 }
 
-function durationString(timer: number): string {
+export function durationString(timer: number): string {
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
 
   return (
     String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0")
   );
+}
+
+function moveExercise(
+  array: Array<Exercise>,
+  fromIndex: number,
+  toIndex: number
+) {
+  var element = array[fromIndex];
+  var otherElement = array[toIndex];
+  array.splice(fromIndex, 1, otherElement);
+  array.splice(toIndex, 1, element);
 }
 export const useRoutine = defineStore("routine", {
   state: () =>
@@ -113,6 +127,9 @@ export const useRoutine = defineStore("routine", {
           exercises: [],
         },
       ],
+      musicEnabled: false,
+      player: "pause",
+      playerVolume: 1,
     } as RoutineState),
 
   getters: {
@@ -123,7 +140,7 @@ export const useRoutine = defineStore("routine", {
     totalRoutineTime(): string {
       return durationString(
         this.activeRoutine.exercises.reduce(
-          (totalTime: number, next: Exercise) => totalTime + next.time,
+          (totalTime: number, next: Exercise) => totalTime + next?.time || 0,
           0
         )
       );
@@ -134,9 +151,6 @@ export const useRoutine = defineStore("routine", {
   },
 
   actions: {
-    setActiveTimer(exercise: Exercise) {
-      this.activeTimer = { ...exercise };
-    },
     setRoutine(routine: Routine) {
       this.activeRoutine = { ...routine };
       window.localStorage.setItem("bhel-routine", JSON.stringify(routine));
@@ -153,6 +167,18 @@ export const useRoutine = defineStore("routine", {
     removeFromRoutine(index: number) {
       var timers = Object.values(this.activeRoutine.exercises) as Exercise[];
       timers.splice(index, 1);
+      this.setRoutine({ name: this.activeRoutine.name, exercises: timers });
+    },
+
+    moveExerciseUp(index: number) {
+      var timers = Object.values(this.activeRoutine.exercises) as Exercise[];
+      moveExercise(timers, index, index - 1);
+      this.setRoutine({ name: this.activeRoutine.name, exercises: timers });
+    },
+
+    moveExerciseDown(index: number) {
+      var timers = Object.values(this.activeRoutine.exercises) as Exercise[];
+      moveExercise(timers, index, index + 1);
       this.setRoutine({ name: this.activeRoutine.name, exercises: timers });
     },
 

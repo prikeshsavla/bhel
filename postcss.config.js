@@ -19,6 +19,7 @@ module.exports = {
         /^(?!(|.*?:)cursor-move).+-move$/,
         /^router-link(|-exact)-active$/,
         /data-v-.*/,
+        /button*/,
       ],
     }),
   ],

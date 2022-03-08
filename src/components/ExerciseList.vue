@@ -4,11 +4,11 @@ import { useRoutine } from "../stores/routine";
 
 const store = useRoutine();
 const emit = defineEmits<{
-  (e: "startSingleTimerWithMusic", timer: Exercise): void;
+  (e: "startSingleTimer", timer: Exercise): void;
 }>();
 
-const startSingleTimerWithMusic = (timer: Exercise) => {
-  emit("startSingleTimerWithMusic", timer);
+const startSingleTimer = (timer: Exercise) => {
+  emit("startSingleTimer", timer);
 };
 </script>
 
@@ -20,14 +20,30 @@ const startSingleTimerWithMusic = (timer: Exercise) => {
       v-for="(timer, index) in store.activeRoutine.exercises"
       :key="timer.name"
     >
-      <button
-        class="exercise contrast"
-        @click="startSingleTimerWithMusic(timer)"
-      >
+      <div class="move-wrapper">
+        <button
+          title="Move Up"
+          class="up secondary"
+          :disabled="store.activeTimer.time > 0 || index == 0"
+          @click="store.moveExerciseUp(index)"
+        ></button>
+        <button
+          title="Move Up"
+          class="down secondary"
+          :disabled="
+            store.activeTimer.time > 0 ||
+            index == store.activeRoutine.exercises.length - 1
+          "
+          @click="store.moveExerciseDown(index)"
+        ></button>
+      </div>
+      <button class="exercise contrast" @click="startSingleTimer(timer)">
         <small>{{ timer.name }} {{ timer.time }}s</small>
       </button>
+
       <button
         class="remove-exercise secondary"
+        :disabled="store.activeTimer.time > 0"
         @click="store.removeFromRoutine(index)"
       >
         &times;
@@ -36,14 +52,67 @@ const startSingleTimerWithMusic = (timer: Exercise) => {
   </details>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .exercise {
-  width: 80%;
+  width: 64%;
   margin-right: 5px;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
   display: inline-block;
 }
 .remove-exercise {
   width: calc(15% - 5px);
   display: inline-block;
+}
+.move-wrapper {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 0 10px;
+
+  .up,
+  .down {
+    position: relative; /* added */
+    width: 25px;
+    height: 22px;
+    cursor: pointer;
+    margin: 0;
+    padding: 10px 19px;
+  }
+
+  .down {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  .up:before {
+    content: "";
+    /* added */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    /* end added */
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 5px 7px 5px;
+    border-color: transparent transparent #fff transparent;
+  }
+  .down:before {
+    content: "";
+    /* added */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    /* end added */
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 7px 5px 0 5px;
+    border-color: #fff transparent transparent transparent;
+  }
 }
 </style>

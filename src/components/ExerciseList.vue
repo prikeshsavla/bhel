@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Exercise } from "../models";
 import { useRoutine } from "../stores/routine";
+import { toggleModal } from "../modules/modal";
 
 const store = useRoutine();
 const emit = defineEmits<{
@@ -37,23 +38,29 @@ const startSingleTimer = (timer: Exercise) => {
           @click="store.moveExerciseDown(index)"
         ></button>
       </div>
-      <button class="exercise contrast" @click="startSingleTimer(timer)">
+      <button
+        class="removable-row-action-button contrast"
+        @click="startSingleTimer(timer)"
+      >
         <small>{{ timer.name }} {{ timer.time }}s</small>
       </button>
 
       <button
-        class="remove-exercise secondary"
+        class="removable-row-remove-button secondary"
         :disabled="store.activeTimer.time > 0"
         @click="store.removeFromRoutine(index)"
       >
         &times;
       </button>
     </div>
+    <button class="contrast" data-target="save-routine" @click="toggleModal">
+      🗃 Save Routine...
+    </button>
   </details>
 </template>
 
 <style scoped lang="scss">
-.exercise {
+.removable-row-action-button {
   width: 64%;
   margin-right: 5px;
   text-align: center;
@@ -61,7 +68,7 @@ const startSingleTimer = (timer: Exercise) => {
   padding-right: 0;
   display: inline-block;
 }
-.remove-exercise {
+.removable-row-remove-button {
   width: calc(15% - 5px);
   display: inline-block;
 }

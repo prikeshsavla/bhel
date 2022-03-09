@@ -31,8 +31,9 @@ So a great food metaphor for excercising for individuals who want to loose weigh
   - [ ] ~~Refactor to become event driven~~
   - [x] Exercise / usage analytics (Client side only)
   - [x] Complete v1
-  - [ ] Move exercises
+  - [x] Move exercises
   - [ ] Save different routines
+  - [ ] Remove saved routine
   - [ ] ~~Turn exercise to music instead of queues~~
   - [ ] Add multiple Sets support
   - [ ] Add Stretch / Warm up and Cool down sections

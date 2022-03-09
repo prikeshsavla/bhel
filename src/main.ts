@@ -28,4 +28,5 @@ document.addEventListener(
   },
   false
 );
+
 createApp(App).use(store).mount("#app");

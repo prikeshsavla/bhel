@@ -86,20 +86,16 @@ const musicPlayer = (command: string) => {
     <RoutineTimer />
     <MusicPlayer />
   </section>
-
-  <!-- <audio id="exercise-audio" loop>
-    <source
-      src="/assets/music/mixkit-rising-forest-471.mp3"
-      type="audio/mpeg"
-    />
-    Your browser does not support the audio element.
-  </audio> -->
-
   <footer>
-    <button @click="startRoutine" v-if="state.timeouts.length === 0">
-      Start {{ store.activeRoutine.name }} (💪 {{ store.totalRoutineTime }})
+    <button
+      @click="startRoutine"
+      v-if="state.timeouts.length === 0"
+      :disabled="store.activeRoutine.exercises.length === 0"
+    >
+      ▶ Start ({{ store.activeRoutine.name }} {{ store.totalRoutineTime }})
     </button>
     <button class="secondary" @click="stop" v-else>Stop</button>
+
     <ExerciseList @start-single-timer="startSingleTimer" />
     <RoutineList />
   </footer>

@@ -6,6 +6,7 @@ interface RoutineState {
   totalTimeSpent: number;
   activeRoutine: Routine;
   routines: Routine[];
+  customRoutines: Routine[];
   musicEnabled: any;
   player: string;
   playerVolume: number;
@@ -127,6 +128,10 @@ export const useRoutine = defineStore("routine", {
           exercises: [],
         },
       ],
+      customRoutines:
+        JSON.parse(
+          window.localStorage.getItem("bhel-custom-routines") ?? "[]"
+        ) ?? [],
       musicEnabled: false,
       player: "pause",
       playerVolume: 1,
@@ -167,6 +172,7 @@ export const useRoutine = defineStore("routine", {
     removeFromRoutine(index: number) {
       var timers = Object.values(this.activeRoutine.exercises) as Exercise[];
       timers.splice(index, 1);
+      this.activeRoutine.exercises = timers;
       this.setRoutine({ name: this.activeRoutine.name, exercises: timers });
     },
 
@@ -206,6 +212,25 @@ export const useRoutine = defineStore("routine", {
       }
 
       this.setRoutine(this.activeRoutine);
+    },
+    saveCustomRoutine(name: string, routineIndex: number) {
+      if (routineIndex === -1) {
+        this.customRoutines.push({ ...this.activeRoutine, name });
+        this.setRoutine({ ...this.activeRoutine, name });
+      } else {
+        this.customRoutines.splice(routineIndex, 1, { ...this.activeRoutine });
+      }
+      window.localStorage.setItem(
+        "bhel-custom-routines",
+        JSON.stringify(this.customRoutines)
+      );
+    },
+    removeFromCustomRoutines(routineIndex: number) {
+      this.customRoutines.splice(routineIndex, 1);
+      window.localStorage.setItem(
+        "bhel-custom-routines",
+        JSON.stringify(this.customRoutines)
+      );
     },
   },
 });

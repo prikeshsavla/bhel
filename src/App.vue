@@ -2,9 +2,9 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import Routine from "./components/Routine.vue";
-import ExerciseForm from "./components/ExerciseForm.vue";
 import Footer from "./components/Footer.vue";
 import SaveRoutineModal from "./components/SaveRoutineModal.vue";
+import AddExercise from "./components/AddExercise.vue";
 </script>
 
 <template>
@@ -20,7 +20,7 @@ import SaveRoutineModal from "./components/SaveRoutineModal.vue";
           <Routine />
         </article>
         <article>
-          <ExerciseForm />
+          <AddExercise />
         </article>
       </div>
     </section>

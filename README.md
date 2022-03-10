@@ -32,8 +32,8 @@ So a great food metaphor for excercising for individuals who want to loose weigh
   - [x] Exercise / usage analytics (Client side only)
   - [x] Complete v1
   - [x] Move exercises
-  - [ ] Save different routines
-  - [ ] Remove saved routine
+  - [x] Save different routines
+  - [x] Remove saved routine
   - [ ] ~~Turn exercise to music instead of queues~~
   - [ ] Add multiple Sets support
   - [ ] Add Stretch / Warm up and Cool down sections

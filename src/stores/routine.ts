@@ -198,17 +198,15 @@ export const useRoutine = defineStore("routine", {
           exercise.time = parseInt(value.toString());
         }
       });
-      this.addTimer(exercise.name, exercise.time);
+      this.addExercise(exercise);
     },
-    addTimer(name: string, time: number) {
+    addExercise(exercise: Exercise) {
       const lastExercise =
         this.activeRoutine.exercises[this.activeRoutine.exercises.length - 1];
-      if (lastExercise && lastExercise.name === name) {
-        this.activeRoutine.exercises[
-          this.activeRoutine.exercises.length - 1
-        ].time = lastExercise.time + time;
+      if (lastExercise && lastExercise.name === exercise.name) {
+        lastExercise.time = lastExercise.time + exercise.time;
       } else {
-        this.activeRoutine.exercises.push({ name, time });
+        this.activeRoutine.exercises.push(exercise);
       }
 
       this.setRoutine(this.activeRoutine);

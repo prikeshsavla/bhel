@@ -11,6 +11,11 @@ const emit = defineEmits<{
 const startSingleTimer = (timer: Exercise) => {
   emit("startSingleTimer", timer);
 };
+
+const editTimer = (index: number, event: any) => {
+  store.editExerciseIndex = index;
+  toggleModal(event);
+};
 </script>
 
 <template>
@@ -42,15 +47,16 @@ const startSingleTimer = (timer: Exercise) => {
         class="removable-row-action-button contrast"
         @click="startSingleTimer(timer)"
       >
-        <small>{{ timer.name }} {{ timer.time }}s</small>
+        <small> {{ timer.workout }} {{ timer.name }} {{ timer.time }}s</small>
       </button>
 
       <button
         class="removable-row-remove-button secondary"
         :disabled="store.activeTimer.time > 0"
-        @click="store.removeFromRoutine(index)"
+        data-target="save-exercise"
+        @click="editTimer(index, $event)"
       >
-        &times;
+        ✏
       </button>
     </div>
     <button class="contrast" data-target="save-routine" @click="toggleModal">
@@ -63,14 +69,15 @@ const startSingleTimer = (timer: Exercise) => {
 .removable-row-action-button {
   width: 64%;
   margin-right: 5px;
-  text-align: center;
-  padding-left: 0;
-  padding-right: 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
   display: inline-block;
 }
 .removable-row-remove-button {
   width: calc(15% - 5px);
   display: inline-block;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 .move-wrapper {
   display: inline-block;

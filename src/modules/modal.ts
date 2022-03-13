@@ -38,7 +38,7 @@ const openModal = (modal: any) => {
 };
 
 // Close modal
-const closeModal = (modal: any) => {
+export const closeModal = (modal: any) => {
   visibleModal = null;
   document.documentElement.classList.add(closingClass);
   setTimeout(() => {

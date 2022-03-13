@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { Exercise, Routine } from "../models";
+import { WorkoutTypes } from "../models/index";
 
 interface RoutineState {
   activeTimer: Exercise;
@@ -10,6 +11,7 @@ interface RoutineState {
   musicEnabled: any;
   player: string;
   playerVolume: number;
+  editExerciseIndex: number;
 }
 
 export function durationString(timer: number): string {
@@ -34,7 +36,11 @@ function moveExercise(
 export const useRoutine = defineStore("routine", {
   state: () =>
     ({
-      activeTimer: { time: 0, name: "Tap Start to Exercise" },
+      activeTimer: {
+        time: 0,
+        name: "Tap Start to Exercise",
+        workout: WorkoutTypes.WORKOUT,
+      },
       activeRoutine: JSON.parse(
         window.localStorage.getItem("bhel-routine") ?? '{"exercises": []}'
       ) ?? { exercises: [] },
@@ -48,78 +54,97 @@ export const useRoutine = defineStore("routine", {
             {
               name: "Forward Shoulder Rotation",
               time: 15,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Reverse Shoulder Rotation",
               time: 15,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Jumping Jacks",
               time: 45,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Butt Kicks",
               time: 45,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 15,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Leg Raise",
               time: 30,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 15,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Leg Scissors",
               time: 30,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Knee High Crunches",
               time: 30,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Plank",
               time: 45,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Forward Lunges",
               time: 45,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Wall Pushup Bicep",
               time: 30,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Wall Pushup Tricep",
               time: 30,
+              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
+              workout: WorkoutTypes.WORKOUT,
             },
           ],
         },
@@ -135,6 +160,7 @@ export const useRoutine = defineStore("routine", {
       musicEnabled: false,
       player: "pause",
       playerVolume: 1,
+      editExerciseIndex: -1,
     } as RoutineState),
 
   getters: {

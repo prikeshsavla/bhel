@@ -5,11 +5,13 @@ import Routine from "./components/Routine.vue";
 import Footer from "./components/Footer.vue";
 import SaveRoutineModal from "./components/SaveRoutineModal.vue";
 import AddExercise from "./components/AddExercise.vue";
+import SaveExerciseModal from "./components/SaveExerciseModal.vue";
 </script>
 
 <template>
   <section>
     <SaveRoutineModal />
+    <SaveExerciseModal />
     <div class="headings" style="text-align: center">
       <h1>Bhel</h1>
       <h4>Your Light Exercise Timer 💪</h4>

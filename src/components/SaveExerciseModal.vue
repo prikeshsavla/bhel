@@ -23,8 +23,9 @@ const deleteExercise = () => {
 watch(
   () => store.editExerciseIndex,
   (newValue: number) => {
-    name.value = store.activeRoutine.exercises[newValue].name;
-    time.value = store.activeRoutine.exercises[newValue].time;
+    const exercise = store.activeRoutine.exercises[newValue];
+    name.value = exercise.name;
+    time.value = exercise.time;
   }
 );
 </script>

@@ -6,6 +6,7 @@ import ExerciseList from "./ExerciseList.vue";
 import RoutineList from "./RoutineList.vue";
 import RoutineTimer from "./RoutineTimer.vue";
 import MusicPlayer from "./MusicPlayer.vue";
+import AddExercise from "./AddExercise.vue";
 
 interface State {
   timeouts: any[];
@@ -37,12 +38,14 @@ const startSingleTimer = (timer: Exercise) => {
 const startRoutine = () => {
   stop();
   var lastTimeout = 0;
-  store.activeRoutine.exercises.forEach((timer) => {
-    state.timeouts.push(
-      setTimeout(() => startTimer({ ...timer }), lastTimeout * 1000)
-    );
-    lastTimeout += timer.time + gap;
-  });
+  for (let i = 0; i < store.activeRoutine.sets; i++) {
+    store.activeRoutine.exercises.forEach((timer) => {
+      state.timeouts.push(
+        setTimeout(() => startTimer({ ...timer }), lastTimeout * 1000)
+      );
+      lastTimeout += timer.time + gap;
+    });
+  }
   fadeOutAudio(lastTimeout);
   musicPlayer("play");
 };
@@ -84,9 +87,24 @@ const musicPlayer = (command: string) => {
 <template>
   <section>
     <RoutineTimer />
-    <MusicPlayer />
+    <div>
+      <MusicPlayer />
+    </div>
   </section>
   <footer>
+    <div>
+      <label for="sets"
+        >Routine Sets
+        <select
+          name="sets"
+          id="sets"
+          v-model="store.activeRoutine.sets"
+          @change="store.setRoutine(store.activeRoutine)"
+        >
+          <option v-for="i in 5" :key="i" :value="i">{{ i }}</option>
+        </select>
+      </label>
+    </div>
     <button
       @click="startRoutine"
       v-if="state.timeouts.length === 0"
@@ -98,5 +116,11 @@ const musicPlayer = (command: string) => {
 
     <ExerciseList @start-single-timer="startSingleTimer" />
     <RoutineList />
+    <details>
+      <summary>New Exercise / Break</summary>
+      <article>
+        <AddExercise />
+      </article>
+    </details>
   </footer>
 </template>

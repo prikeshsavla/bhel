@@ -25,8 +25,9 @@ const editTimer = (index: number, event: any) => {
     <div
       v-for="(timer, index) in store.activeRoutine.exercises"
       :key="timer.name"
+      class="exercise-list"
     >
-      <div class="move-wrapper">
+      <div class="move-wrapper g-start">
         <button
           title="Move Up"
           class="up secondary"
@@ -44,14 +45,17 @@ const editTimer = (index: number, event: any) => {
         ></button>
       </div>
       <button
-        class="removable-row-action-button contrast"
+        class="removable-row-action-button g-middle contrast"
         @click="startSingleTimer(timer)"
       >
-        <small> {{ timer.workout }} {{ timer.name }} {{ timer.time }}s</small>
+        <small>
+          {{ timer.name }}
+          {{ timer.time }}s
+        </small>
       </button>
 
       <button
-        class="removable-row-remove-button secondary"
+        class="removable-row-remove-button secondary g-end"
         :disabled="store.activeTimer.time > 0"
         data-target="save-exercise"
         @click="editTimer(index, $event)"
@@ -67,30 +71,23 @@ const editTimer = (index: number, event: any) => {
 
 <style scoped lang="scss">
 .removable-row-action-button {
-  width: 64%;
-  margin-right: 5px;
-  padding-left: 0.5rem;
+  padding: 0.5rem;
   padding-right: 0.5rem;
-  display: inline-block;
 }
 .removable-row-remove-button {
-  width: calc(15% - 5px);
-  display: inline-block;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
 .move-wrapper {
-  display: inline-block;
   vertical-align: middle;
-  padding: 0 10px;
-
+  padding-top: 0.2rem;
   .up,
   .down {
     position: relative; /* added */
     width: 25px;
     height: 22px;
     cursor: pointer;
-    margin: 0;
+    margin: 0 auto;
     padding: 10px 19px;
   }
 
@@ -127,6 +124,27 @@ const editTimer = (index: number, event: any) => {
     border-style: solid;
     border-width: 7px 5px 0 5px;
     border-color: #fff transparent transparent transparent;
+  }
+}
+
+.exercise-list {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 10px;
+  grid-auto-rows: minmax(50px, auto);
+
+  .g-start {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .g-middle {
+    grid-column: 2 / 12;
+    grid-row: 1;
+  }
+
+  .g-end {
+    grid-column: 12;
+    grid-row: 1;
   }
 }
 </style>

@@ -32,16 +32,16 @@ So a great food metaphor for excercising for individuals who want to loose weigh
   - [x] Exercise / usage analytics (Client side only)
   - [x] Complete v1
   - [x] Move exercises
-  - [x] Save different routines
+  - [x] Save custom routines
   - [x] Remove saved routine
   - [ ] ~~Turn exercise to music instead of queues~~
-  - [ ] Add multiple Sets support
-  - [ ] Add Stretch / Warm up and Cool down sections
-  - [ ] Add counter instead of timer
+  - [x] Add multiple Sets support
+  - [ ] ~~Add Stretch / Warm up and Cool down sections~~
+  - [ ] ~~Add counter instead of timer~~
   - [x] Disable Music
   - [ ] ~~Select Music from a dropdown~~
-  - [ ] Change Background on Exercise
-  - [ ] Complete v2
+  - [ ] ~~Change Background on Exercise~~
+  - [x] Complete v2
 
 ## Contribution
 Issues and feature suggestions are welcome

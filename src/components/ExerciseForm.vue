@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Exercise, WorkoutTypes } from "../models";
+import { Exercise } from "../models";
 defineProps({
   name: {
     type: String,
@@ -18,12 +18,10 @@ const addTimerFromForm = (event: any) => {
   const exercise: Exercise = {
     name: "",
     time: 0,
-    workout: WorkoutTypes.WORKOUT,
   };
   const formData = new FormData(event.target);
   exercise.name = formData.get("name") as string;
   exercise.time = parseInt(formData.get("time") as string);
-  exercise.workout = formData.get("workout") as WorkoutTypes;
   emit("save", exercise);
 };
 </script>
@@ -54,37 +52,6 @@ const addTimerFromForm = (event: any) => {
         required
       />
     </label>
-    <fieldset>
-      <legend>Size</legend>
-      <label :for="WorkoutTypes.WORKOUT">
-        <input
-          type="radio"
-          :id="WorkoutTypes.WORKOUT"
-          name="workout"
-          :value="WorkoutTypes.WORKOUT"
-          checked
-        />
-        {{ WorkoutTypes.WORKOUT }}
-      </label>
-      <label :for="WorkoutTypes.STRETCH">
-        <input
-          type="radio"
-          :id="WorkoutTypes.STRETCH"
-          name="workout"
-          :value="WorkoutTypes.STRETCH"
-        />
-        {{ WorkoutTypes.STRETCH }}
-      </label>
-      <label :for="WorkoutTypes.COOLDOWN">
-        <input
-          type="radio"
-          :id="WorkoutTypes.COOLDOWN"
-          name="workout"
-          :value="WorkoutTypes.COOLDOWN"
-        />
-        {{ WorkoutTypes.COOLDOWN }}
-      </label>
-    </fieldset>
     <button>Save Exercise</button>
   </form>
 </template>

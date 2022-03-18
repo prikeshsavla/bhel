@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { Exercise, Routine } from "../models";
-import { WorkoutTypes } from "../models/index";
 
 interface RoutineState {
   activeTimer: Exercise;
@@ -39,118 +38,101 @@ export const useRoutine = defineStore("routine", {
       activeTimer: {
         time: 0,
         name: "Tap Start to Exercise",
-        workout: WorkoutTypes.WORKOUT,
       },
       activeRoutine: JSON.parse(
-        window.localStorage.getItem("bhel-routine") ?? '{"exercises": []}'
-      ) ?? { exercises: [] },
+        window.localStorage.getItem("bhel-routine") ??
+          '{"exercises": [], "sets": 1}'
+      ) ?? { exercises: [], sets: 1 },
       totalTimeSpent: parseInt(
         window.localStorage.getItem("bhel-total-time-spent") ?? "0"
       ),
       routines: [
         {
           name: "Default Routine",
+          sets: 1,
           exercises: [
             {
               name: "Forward Shoulder Rotation",
               time: 15,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Reverse Shoulder Rotation",
               time: 15,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Jumping Jacks",
               time: 45,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Butt Kicks",
               time: 45,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 15,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Leg Raise",
               time: 30,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 15,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Leg Scissors",
               time: 30,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Knee High Crunches",
               time: 30,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Plank",
               time: 45,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Forward Lunges",
               time: 45,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Wall Pushup Bicep",
               time: 30,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Wall Pushup Tricep",
               time: 30,
-              workout: WorkoutTypes.WORKOUT,
             },
             {
               name: "Break",
               time: 10,
-              workout: WorkoutTypes.WORKOUT,
             },
           ],
         },
         {
           name: "🆕 New Routine",
           exercises: [],
+          sets: 1,
         },
       ],
       customRoutines:
@@ -173,7 +155,7 @@ export const useRoutine = defineStore("routine", {
         this.activeRoutine.exercises.reduce(
           (totalTime: number, next: Exercise) => totalTime + next?.time || 0,
           0
-        )
+        ) * parseInt(this.activeRoutine.sets.toString())
       );
     },
     readableTotalTimeSpent(): string {
@@ -196,35 +178,22 @@ export const useRoutine = defineStore("routine", {
     },
 
     removeFromRoutine(index: number) {
-      var timers = Object.values(this.activeRoutine.exercises) as Exercise[];
-      timers.splice(index, 1);
-      this.activeRoutine.exercises = timers;
-      this.setRoutine({ name: this.activeRoutine.name, exercises: timers });
+      var exercises = Object.values(this.activeRoutine.exercises) as Exercise[];
+      exercises.splice(index, 1);
+      this.activeRoutine.exercises = exercises;
+      this.setRoutine(this.activeRoutine);
     },
 
     moveExerciseUp(index: number) {
-      var timers = Object.values(this.activeRoutine.exercises) as Exercise[];
-      moveExercise(timers, index, index - 1);
-      this.setRoutine({ name: this.activeRoutine.name, exercises: timers });
+      var exercises = Object.values(this.activeRoutine.exercises) as Exercise[];
+      moveExercise(exercises, index, index - 1);
+      this.setRoutine({ ...this.activeRoutine, exercises });
     },
 
     moveExerciseDown(index: number) {
-      var timers = Object.values(this.activeRoutine.exercises) as Exercise[];
-      moveExercise(timers, index, index + 1);
-      this.setRoutine({ name: this.activeRoutine.name, exercises: timers });
-    },
-
-    addTimerFromForm(event: any) {
-      const exercise: Exercise = { name: "", time: 0 };
-      new FormData(event.target).forEach((value, key: string) => {
-        if (key === "name") {
-          exercise.name = value.toString();
-        }
-        if (key === "time") {
-          exercise.time = parseInt(value.toString());
-        }
-      });
-      this.addExercise(exercise);
+      var exercises = Object.values(this.activeRoutine.exercises) as Exercise[];
+      moveExercise(exercises, index, index + 1);
+      this.setRoutine({ ...this.activeRoutine, exercises });
     },
     addExercise(exercise: Exercise) {
       const lastExercise =

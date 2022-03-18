@@ -6,7 +6,10 @@ import ExerciseForm from "./ExerciseForm.vue";
 const store = useRoutine();
 
 const addShortBreak = () => {
-  store.addExercise({ name: "Break", time: 15 });
+  store.addExercise({
+    name: "Break",
+    time: 15,
+  });
 };
 
 const addExercise = (exercise: Exercise) => {

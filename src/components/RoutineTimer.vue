@@ -18,10 +18,11 @@ watch(
     speak(exercise.name + " " + `${exercise.time} seconds`, 1);
     singleSecondInterval = setInterval(() => {
       store.incrementTotalTime();
+      --duration.value;
       if (duration.value > 0 && duration.value < 6) {
         speak(String(duration.value), 2);
       }
-      if (--duration.value < 0) {
+      if (duration.value == 0) {
         speak("And Done", 2);
         clearInterval(singleSecondInterval);
       }

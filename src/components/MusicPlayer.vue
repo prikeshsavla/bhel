@@ -44,15 +44,17 @@ const toggleMusic = () => {
 </script>
 <template>
   <fieldset>
-    🎵 Music: Off
-    <input
-      type="checkbox"
-      @change="toggleMusic"
-      id="switch"
-      :checked="store.musicEnabled"
-      name="switch"
-      role="switch"
-    />On
+    <label for="switch"
+      >🎵 Music: Off
+      <input
+        type="checkbox"
+        @change="toggleMusic"
+        id="switch"
+        :checked="store.musicEnabled"
+        name="switch"
+        role="switch"
+      />On</label
+    >
   </fieldset>
   <audio id="exercise-audio" loop>
     <source

@@ -39,10 +39,15 @@ export const useRoutine = defineStore("routine", {
         time: 0,
         name: "Tap Start to Exercise",
       },
-      activeRoutine: JSON.parse(
-        window.localStorage.getItem("bhel-routine") ??
-          '{"exercises": [], "sets": 1}'
-      ) ?? { exercises: [], sets: 1 },
+      activeRoutine: {
+        name: "Routine",
+        exercises: [],
+        sets: 1,
+        ...(JSON.parse(
+          window.localStorage.getItem("bhel-routine") ??
+            '{"exercises": [], "sets": 1}'
+        ) ?? { exercises: [], sets: 1 }),
+      },
       totalTimeSpent: parseInt(
         window.localStorage.getItem("bhel-total-time-spent") ?? "0"
       ),

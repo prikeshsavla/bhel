@@ -2,31 +2,31 @@
 import { durationString, useRoutine } from "../stores/routine";
 import { Exercise } from "../models/index";
 import { computed, ref, watch } from "vue-demi";
+import { CountDown } from "../modules/countdown";
 
 const store = useRoutine();
-let singleSecondInterval: any;
 let duration = ref(0);
+let countdown = new CountDown(0, ()=>{});
 
 watch(
   () => store.activeTimer,
   (exercise: Exercise) => {
-    clearInterval(singleSecondInterval);
-    duration.value = exercise.time;
+    countdown.stop();
     if (exercise.time == 0) {
       return;
     }
     speak(exercise.name + " " + `${exercise.time} seconds`, 1);
-    singleSecondInterval = setInterval(() => {
+    countdown = new CountDown(exercise.time, (secondsLeft: number, event: String) => {
+      duration.value = secondsLeft;
       store.incrementTotalTime();
-      --duration.value;
-      if (duration.value > 0 && duration.value < 6) {
-        speak(String(duration.value), 2);
+      if (secondsLeft > 0 && secondsLeft < 6) {
+        speak(String(secondsLeft), 2);
       }
-      if (duration.value == 0) {
+      if (secondsLeft == 0 && event != 'stop') {
         speak("And Done", 2);
-        clearInterval(singleSecondInterval);
       }
-    }, 1000);
+    })
+    countdown.start();
   }
 );
 
@@ -51,9 +51,3 @@ const countdownTimer = computed(() => durationString(duration.value));
     <h2>{{ store.activeTimer.name }}</h2>
   </div>
 </template>
-
-<style scoped>
-.center {
-  text-align: center;
-}
-</style>

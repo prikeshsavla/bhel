@@ -10,23 +10,24 @@ const updateSW = registerSW({
 
 const noSleep = new NoSleep();
 const store = createPinia();
+noSleep.enable();
+
 // Enable wake lock.
-// (must be wrapped in a user input event handler e.g. a mouse or touch handler)
-document.addEventListener(
-  "click",
-  function enableNoSleep() {
-    document.removeEventListener("click", enableNoSleep, false);
-    noSleep.enable();
-  },
-  false
-);
 document.addEventListener(
   "touchstart",
   function enableNoSleep() {
-    document.removeEventListener("touchstart", enableNoSleep, false);
     noSleep.enable();
   },
   false
 );
+
+document.addEventListener("visibilitychange", () =>  {
+  if (document.hidden){
+    noSleep.disable();
+  } else {
+      noSleep.enable();
+  }
+});
+
 
 createApp(App).use(store).mount("#app");

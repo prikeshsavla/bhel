@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, reactive, watch } from "vue";
+import { reactive } from "vue";
 import { Exercise } from "../models";
-import { useRoutine } from "../stores/routine";
+import { durationString,useRoutine } from "../stores/routine";
 import ExerciseList from "./ExerciseList.vue";
 import RoutineList from "./RoutineList.vue";
 import RoutineTimer from "./RoutineTimer.vue";
@@ -17,7 +17,7 @@ const gap = 2;
 let state: State = reactive({
   timeouts: [],
 });
-let singleSecondInterval: any;
+
 
 const startTimer = (exercise: Exercise) => {
   store.activeTimer = exercise;
@@ -50,7 +50,6 @@ const startRoutine = () => {
   musicPlayer("play");
 };
 const stop = () => {
-  clearInterval(singleSecondInterval);
   store.activeTimer = {
     time: 0,
     name: "Tap Start to Exercise",
@@ -105,14 +104,19 @@ const musicPlayer = (command: string) => {
         </select>
       </label>
     </div>
+
+    <p class="center">{{ store.activeRoutine.name }}</p>
+
     <button
       @click="startRoutine"
       v-if="state.timeouts.length === 0"
       :disabled="store.activeRoutine.exercises.length === 0"
     >
-      ▶ Start ({{ store.activeRoutine.name }} {{ store.totalRoutineTime }})
+      ▶ Start ({{ store.activeRoutine.name }} {{ durationString(store.totalRoutineTime) }})
     </button>
-    <button class="secondary" @click="stop" v-else>Stop</button>
+    <button class="secondary" @click="stop" v-else>
+      Stop 
+    </button>
 
     <ExerciseList @start-single-timer="startSingleTimer" />
     <RoutineList />

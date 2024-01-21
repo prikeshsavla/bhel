@@ -155,13 +155,11 @@ export const useRoutine = defineStore("routine", {
       return durationString(this.activeTimer.time);
     },
 
-    totalRoutineTime(): string {
-      return durationString(
-        this.activeRoutine.exercises.reduce(
+    totalRoutineTime(): number {
+      return this.activeRoutine.exercises.reduce(
           (totalTime: number, next: Exercise) => totalTime + next?.time || 0,
           0
-        ) * parseInt(this.activeRoutine.sets.toString())
-      );
+        ) * parseInt(this.activeRoutine.sets.toString());
     },
     readableTotalTimeSpent(): string {
       return durationString(this.totalTimeSpent);
